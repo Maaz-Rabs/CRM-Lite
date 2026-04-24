@@ -1,0 +1,13 @@
+/* Shared Leads page styles */
+.leads__priority-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.leads__count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--gray-400);
+  font-weight: 500;
+}

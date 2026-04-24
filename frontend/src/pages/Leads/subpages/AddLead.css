@@ -1,0 +1,106 @@
+.add-lead-form {
+  background: var(--white); border-radius: var(--radius-xl);
+  border: 1px solid var(--gray-200); padding: 36px;
+}
+.add-lead-section { margin-bottom: 16px; }
+.add-lead-section:last-of-type { margin-bottom: 0; }
+.add-lead-section__title {
+  font-family: var(--font-display); font-size: 16px; font-weight: 600;
+  color: var(--gray-900); margin-bottom: 20px; padding-left: 14px;
+  border-left: 3px solid var(--gold-500);
+}
+.add-lead-section__title--toggle {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  margin-bottom: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.add-lead-section__title--toggle:hover {
+  background: var(--gray-50);
+}
+/* When section is open, add bottom margin */
+.add-lead-section:has(.section-chevron--open) .add-lead-section__title--toggle {
+  margin-bottom: 20px;
+}
+.section-chevron {
+  transition: transform 0.2s;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+.section-chevron--open {
+  transform: rotate(180deg);
+}
+.add-lead-actions {
+  display: flex; gap: 12px; justify-content: flex-end;
+  padding-top: 28px; border-top: 1px solid var(--gray-100); margin-top: 28px;
+}
+
+/* 3-column row for area/price */
+.form-row--3 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 16px;
+}
+
+/* Document upload box */
+.add-lead-upload {
+  border: 2px dashed var(--gray-300);
+  border-radius: 12px;
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 100px;
+  transition: border-color 0.2s;
+  font-size: 13px;
+  color: var(--gray-500);
+  text-align: center;
+}
+.add-lead-upload:hover {
+  border-color: var(--gold-500);
+  background: rgba(200, 169, 81, 0.03);
+}
+
+/* File preview */
+.add-lead-file-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--gray-50);
+}
+.add-lead-file-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--gray-700);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.add-lead-file-remove {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+.add-lead-file-remove:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+@media (max-width: 768px) {
+  .form-row--3 {
+    grid-template-columns: 1fr !important;
+  }
+}

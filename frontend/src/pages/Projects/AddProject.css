@@ -1,0 +1,114 @@
+/* ── Add Project Page ───────────────────────────────────────── */
+.addproject { }
+
+.addproject__form {
+  max-width: 1000px;
+}
+
+/* ── Collapsible Sections ── */
+.addproject__section {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.addproject__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.addproject__section-header:hover {
+  background: var(--gray-50);
+}
+
+.addproject__section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addproject__section-chevron {
+  color: var(--gray-400);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.addproject__section-chevron--open {
+  transform: rotate(180deg);
+}
+
+.addproject__section-body {
+  padding: 0 24px 24px;
+}
+
+.addproject__section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.addproject__section-grid--three {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ── Amenities Chips ── */
+.addproject__amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.addproject__amenity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-600);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.addproject__amenity-chip:hover {
+  border-color: var(--navy-300);
+  color: var(--navy-600);
+}
+.addproject__amenity-chip--selected {
+  background: var(--navy-700);
+  color: var(--white);
+  border-color: var(--navy-700);
+}
+.addproject__amenity-chip--selected:hover {
+  background: var(--navy-600);
+  border-color: var(--navy-600);
+  color: var(--white);
+}
+
+/* ── Actions ── */
+.addproject__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .addproject__section-grid {
+    grid-template-columns: 1fr;
+  }
+  .addproject__section-grid--three {
+    grid-template-columns: 1fr;
+  }
+}

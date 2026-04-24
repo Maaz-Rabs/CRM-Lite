@@ -1,0 +1,35 @@
+/* Tabs */
+.att-tabs { display: flex; gap: 4px; background: var(--gray-100); border-radius: var(--radius-md); padding: 4px; margin-bottom: 20px; width: fit-content; }
+.att-tab { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: var(--radius-sm); border: none; background: transparent; font-size: 13px; font-weight: 500; color: var(--gray-500); cursor: pointer; transition: all 0.15s; }
+.att-tab--active { background: #fff; color: var(--navy-800); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+/* Nav buttons */
+.att-nav-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); background: #fff; cursor: pointer; color: var(--gray-600); transition: all 0.15s; }
+.att-nav-btn:hover { border-color: var(--primary); color: var(--primary); }
+.att-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Status Badge */
+.att-status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+/* Loading / Error */
+.att-loading { padding: 48px; text-align: center; color: var(--gray-400); font-size: 14px; }
+
+/* Legacy */
+.att-time { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+
+/* Day cards â€” Monthly drill-down */
+.att-day-list { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.att-day-card { border: 1px solid var(--gray-100); border-radius: var(--radius-md); background: #fff; overflow: hidden; }
+.att-day-card__header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--gray-50, #fafafa); border-bottom: 1px solid var(--gray-100); }
+.att-day-card__date { display: flex; flex-direction: column; }
+.att-day-card__date-main { font-size: 14px; font-weight: 600; color: var(--navy-800); }
+.att-day-card__date-sub { font-size: 11px; color: var(--gray-500); }
+.att-day-card__meta { display: flex; align-items: center; gap: 12px; }
+.att-day-card__hours { font-size: 13px; font-weight: 700; color: var(--navy-800); }
+
+.att-session-list { padding: 8px 0; }
+.att-session-row { display: grid; grid-template-columns: 80px 110px 110px 110px 1fr; gap: 12px; align-items: center; padding: 10px 16px; font-size: 13px; color: var(--navy-800); border-top: 1px dashed var(--gray-100); }
+.att-session-row:first-child { border-top: none; }
+.att-session-row--head { font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 16px; background: transparent; }
+.att-session-row--head + .att-session-row { border-top: 1px solid var(--gray-100); }
+.att-session-row__loc { font-size: 12px; color: var(--gray-500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

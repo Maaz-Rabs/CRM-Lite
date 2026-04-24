@@ -1,0 +1,224 @@
+/* ── Candidate Filters ── */
+.cand-filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.cand-filters__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  flex: 1;
+  min-width: 250px;
+}
+
+.cand-filters__search input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  background: transparent;
+  color: var(--gray-700);
+}
+
+.cand-filters__search svg {
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+/* ── Candidate Table ── */
+.cand-table-wrap {
+  overflow-x: auto;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+}
+
+.cand-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cand-table thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.cand-table__row {
+  transition: background 0.15s;
+}
+
+.cand-table__row:hover {
+  background: var(--gray-50);
+}
+
+.cand-table__row td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+
+.cand-table__empty {
+  padding: 40px !important;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 14px;
+}
+
+.cand-table__name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cand-table__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy-700);
+  background: var(--navy-50);
+  border: 2px solid var(--navy-200);
+  flex-shrink: 0;
+}
+
+.cand-table__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.cand-table__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+.cand-table__email-text {
+  font-size: 11px;
+  color: var(--gray-400);
+}
+
+.cand-table__text {
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+.cand-table__date {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+/* ── Status Badge ── */
+.cand-status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── CV Link ── */
+.cand-cv-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.cand-cv-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Actions ── */
+.cand-table__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.cand-action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.15s;
+}
+
+.cand-action-btn:hover {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.cand-action-btn--danger:hover {
+  background: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+/* ── Pagination ── */
+.cand-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.cand-pagination__info {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.cand-pagination__btns {
+  display: flex;
+  gap: 8px;
+}
+
+.cand-pagination__btns button {
+  padding: 6px 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  background: var(--white);
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--gray-600);
+}
+
+.cand-pagination__btns button:hover:not(:disabled) {
+  background: var(--gray-50);
+}
+
+.cand-pagination__btns button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -1,0 +1,194 @@
+/* ── Add Candidate Form ── */
+.ac-form {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  padding: 28px;
+}
+
+.ac-form__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 24px;
+}
+
+.ac-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.ac-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ac-field--full {
+  grid-column: 1 / -1;
+}
+
+.ac-field__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
+.ac-field__req {
+  color: #ef4444;
+}
+
+.ac-field__input {
+  padding: 9px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--gray-800);
+  outline: none;
+  transition: border-color 0.15s;
+  background: var(--white);
+}
+
+.ac-field__input:focus {
+  border-color: var(--navy-400);
+}
+
+.ac-field__input--error {
+  border-color: #ef4444 !important;
+  background: #fef2f2;
+}
+
+.ac-field__error {
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.ac-field__select {
+  appearance: auto;
+  cursor: pointer;
+}
+
+.ac-field__textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Phone field */
+.ac-field__phone {
+  display: flex;
+  gap: 8px;
+}
+
+.ac-field__code {
+  width: 100px;
+  padding: 9px 8px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  background: var(--white);
+}
+
+.ac-field__phone-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--gray-800);
+  outline: none;
+  transition: border-color 0.15s;
+  background: #fff5f5;
+}
+
+.ac-field__phone-input:focus {
+  border-color: var(--navy-400);
+}
+
+.ac-field__phone-input--error {
+  border-color: #ef4444 !important;
+  background: #fef2f2;
+}
+
+/* CV upload */
+.ac-upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px dashed var(--gray-300);
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  color: var(--gray-400);
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.ac-upload-box:hover {
+  border-color: var(--navy-400);
+  color: var(--navy-500);
+}
+
+.ac-file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  font-size: 12px;
+  color: var(--gray-700);
+}
+
+.ac-file-preview button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--gray-400);
+  padding: 2px;
+}
+
+.ac-file-preview button:hover {
+  color: #ef4444;
+}
+
+/* Submit button */
+.ac-submit {
+  margin-top: 24px;
+}
+
+.ac-submit__btn {
+  width: 100%;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-transform: uppercase;
+}
+
+.ac-submit__btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.ac-submit__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ac-form__grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,21 @@
+/* ── Follow-up Tabs ── */
+.fu-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px;
+}
+.fu-tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 10px;
+  border: 1.5px solid var(--gray-200); background: var(--white);
+  font-size: 13px; font-weight: 600; color: var(--gray-500);
+  cursor: pointer; transition: all 0.2s;
+}
+.fu-tab:hover {
+  border-color: var(--fu-color); color: var(--fu-color);
+  background: color-mix(in srgb, var(--fu-color) 4%, var(--white));
+}
+.fu-tab--active {
+  border-color: var(--fu-color); color: var(--fu-color);
+  background: color-mix(in srgb, var(--fu-color) 6%, var(--white));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fu-color) 10%, transparent);
+}
+.fu-tab__label { white-space: nowrap; }

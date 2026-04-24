@@ -1,0 +1,40 @@
+/* Loans Page Styles */
+.loans-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+}
+
+.loans-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.loan-stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--gray-200);
+}
+
+.loan-stat-card__title {
+  font-size: 12px;
+  color: var(--gray-600);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.loan-stat-card__value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.loan-stat-card__change {
+  font-size: 12px;
+  color: var(--success);
+  margin-top: 8px;
+}

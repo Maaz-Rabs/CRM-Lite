@@ -1,0 +1,410 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --navy-900: #0a1628;
+  --navy-800: #0f1f3d;
+  --navy-700: #152952;
+  --navy-600: #1a3366;
+  --navy-500: #1e3d7a;
+  --navy-400: #2a5298;
+  --navy-300: #3d6bb5;
+  --navy-200: #6b95d1;
+  --navy-100: #a8c4e8;
+  --navy-50: #edf2fa;
+
+  --gold-900: #7a5c00;
+  --gold-800: #9a7400;
+  --gold-700: #b8900a;
+  --gold-600: #d4a819;
+  --gold-500: #e8be30;
+  --gold-400: #f0d060;
+  --gold-300: #f5dc8a;
+  --gold-200: #fae8b0;
+  --gold-100: #fdf3d7;
+  --gold-50: #fef9ec;
+
+  --success: #10b981;
+  --success-light: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --info: #3b82f6;
+  --info-light: #eff6ff;
+
+  --white: #ffffff;
+  --gray-50: #f8f9fb;
+  --gray-100: #f1f3f7;
+  --gray-200: #e3e7ee;
+  --gray-300: #cdd3de;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  --shadow-sm: 0 1px 3px rgba(10, 22, 40, 0.04);
+  --shadow-md: 0 2px 8px rgba(10, 22, 40, 0.06);
+  --shadow-lg: 0 8px 24px rgba(10, 22, 40, 0.08);
+  --shadow-xl: 0 16px 40px rgba(10, 22, 40, 0.1);
+  --shadow-gold: 0 4px 14px rgba(212, 168, 25, 0.2);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --font-display: 'Outfit', -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--gray-50);
+  color: var(--gray-800);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s ease-out forwards;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* ─── Light theme (default) ───────────────────────────── */
+:root,
+[data-theme="light"] {
+  --navy-900: #0a1628;
+  --navy-800: #0f1f3d;
+  --navy-700: #152952;
+  --navy-600: #1a3366;
+  --navy-500: #1e3d7a;
+  --navy-400: #2a5298;
+  --navy-300: #3d6bb5;
+  --navy-200: #6b95d1;
+  --navy-100: #a8c4e8;
+  --navy-50: #edf2fa;
+
+  --gold-900: #7a5c00;
+  --gold-800: #9a7400;
+  --gold-700: #b8900a;
+  --gold-600: #d4a819;
+  --gold-500: #e8be30;
+  --gold-400: #f0d060;
+  --gold-300: #f5dc8a;
+  --gold-200: #fae8b0;
+  --gold-100: #fdf3d7;
+  --gold-50: #fef9ec;
+
+  --success: #10b981;
+  --success-light: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --info: #3b82f6;
+  --info-light: #eff6ff;
+
+  --white: #ffffff;
+  --gray-50: #f8f9fb;
+  --gray-100: #f1f3f7;
+  --gray-200: #e3e7ee;
+  --gray-300: #cdd3de;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  --shadow-sm: 0 1px 3px rgba(10, 22, 40, 0.04);
+  --shadow-md: 0 2px 8px rgba(10, 22, 40, 0.06);
+  --shadow-lg: 0 8px 24px rgba(10, 22, 40, 0.08);
+  --shadow-xl: 0 16px 40px rgba(10, 22, 40, 0.1);
+  --shadow-gold: 0 4px 14px rgba(212, 168, 25, 0.2);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --font-display: 'Outfit', -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Dark theme — remap gray/white vars to dark surfaces ─── */
+[data-theme="dark"] {
+  --white: #111b2e;
+  --gray-50: #0a1220;
+  --gray-100: #152238;
+  --gray-200: rgba(255, 255, 255, 0.08);
+  --gray-300: rgba(255, 255, 255, 0.14);
+
+  --gray-400: rgba(255, 255, 255, 0.40);
+  --gray-500: rgba(255, 255, 255, 0.58);
+  --gray-600: rgba(255, 255, 255, 0.70);
+  --gray-700: rgba(255, 255, 255, 0.82);
+  --gray-800: rgba(255, 255, 255, 0.90);
+  --gray-900: #ffffff;
+
+  --success-light: rgba(16, 185, 129, 0.12);
+  --warning-light: rgba(245, 158, 11, 0.12);
+  --danger-light: rgba(239, 68, 68, 0.12);
+  --info-light: rgba(59, 130, 246, 0.12);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --shadow-gold: 0 4px 14px rgba(212, 168, 25, 0.25);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--gray-50);
+  color: var(--gray-800);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  font-size: 14px;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s ease-out forwards;
+}
+
+/* ─── Dark mode — component-specific fixes ─────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Header — translucent dark */
+[data-theme="dark"] .header {
+  background: rgba(17, 27, 46, 0.85);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Lead table — fix inline navy text colors */
+[data-theme="dark"] .lead-table__name {
+  color: #ffffff !important;
+}
+[data-theme="dark"] .lead-table__avatar {
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+[data-theme="dark"] .lead-table thead,
+[data-theme="dark"] .lead-table th {
+  background: var(--gray-100) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+[data-theme="dark"] .lead-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .lead-table__row:hover {
+  background: var(--gray-100);
+}
+
+/* Fix any card/panel using hardcoded #fff */
+[data-theme="dark"] .att-tab--active,
+[data-theme="dark"] .att-nav-btn,
+[data-theme="dark"] .att-day-card,
+[data-theme="dark"] .vp-card,
+[data-theme="dark"] .vp-like-btn,
+[data-theme="dark"] .vp-action-btn--outline,
+[data-theme="dark"] .vp-gallery__nav,
+[data-theme="dark"] .lead-table-wrapper,
+[data-theme="dark"] .loan-stat-card {
+  background: var(--white) !important;
+  color: var(--gray-900) !important;
+  border-color: var(--gray-200) !important;
+}
+
+/* Navy-colored text that stays dark across themes — force bright in dark */
+[data-theme="dark"] .att-day-card__date-main,
+[data-theme="dark"] .att-day-card__hours,
+[data-theme="dark"] .att-session-row {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+[data-theme="dark"] .att-day-card__header {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+[data-theme="dark"] .att-session-row {
+  border-top-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Followup cards used color-mix(... white) literal — that blows up on dark */
+[data-theme="dark"] .fu-tab--active {
+  background: color-mix(in srgb, var(--fu-color, var(--gold-500)) 14%, var(--white)) !important;
+}
+
+/* Inputs / selects — force dark surface */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: var(--gray-100);
+  color: var(--gray-900);
+  border-color: var(--gray-200);
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--gray-400);
+}
+
+/* Native select dropdown popover — browsers ignore custom CSS for the list
+   itself, but do honor option bg/fg. Force a dark surface everywhere. */
+[data-theme="dark"] select { color-scheme: dark; }
+[data-theme="dark"] option {
+  background-color: #111b2e;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Modal/dialog backdrops */
+[data-theme="dark"] .modal,
+[data-theme="dark"] .dialog,
+[data-theme="dark"] .popup {
+  background: var(--white);
+  color: var(--gray-900);
+}
+
+/* Navy text that turns invisible on dark bg */
+[data-theme="dark"] [style*="var(--navy-800)"],
+[data-theme="dark"] [style*="var(--navy-900)"] {
+  /* These are inline styles — can't override inline with !important 
+     easily, so components need individual handling if visible bugs remain */
+}
+
+/* Scrollbar in dark */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="dark"] .lead-source-chip,
+[data-theme="dark"] .lead-detail__source-chip {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+}
