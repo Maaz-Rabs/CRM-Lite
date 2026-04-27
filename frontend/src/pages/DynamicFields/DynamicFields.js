@@ -3,8 +3,8 @@ import { apiFetch } from '../../utils/api';
 import Header from '../../components/layout/Header';
 import { Modal, Button } from '../../components/common/Common';
 import {
-  Plus, Edit2, Trash2, ChevronDown, ChevronLeft, ChevronRight,
-  Globe, Tag, Flag, Building2, Briefcase, Home, LayoutGrid, Clock, Search, X, Sparkles
+  Plus, Edit2, Trash2, ChevronLeft, ChevronRight,
+  Globe, Tag, Flag, Building2, Briefcase, Home, LayoutGrid, Clock, Search, X
 } from 'lucide-react';
 import '../../components/leads/LeadTable.css';
 import './DynamicFields.css';
@@ -29,7 +29,6 @@ const DynamicFields = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editItem, setEditItem] = useState(null);

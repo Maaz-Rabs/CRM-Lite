@@ -13,7 +13,7 @@ const Loans = () => {
   const [stats, setStats] = useState({});
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [typeFilter, setTypeFilter] = useState('All');
+  const [typeFilter] = useState('All');
   const [loading, setLoading] = useState(true);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../../utils/api';
 import Header from '../../components/layout/Header';
 import { Button } from '../../components/common/Common';
-import { Save, ArrowLeft, Eye, EyeOff, ChevronDown, ChevronRight, Check } from 'lucide-react';
+import { Save, ArrowLeft, Eye, EyeOff, ChevronRight, Check } from 'lucide-react';
 import './Users.css';
 
 const ADMIN_ROLES = [
@@ -15,11 +15,6 @@ const EMPLOYEE_ROLES = [
   { value: 'sales_manager', label: 'Sales Manager' },
   { value: 'tele_caller', label: 'Tele Caller' },
 ];
-const HR_ROLES = [
-  { value: 'hr_head', label: 'HR Head' },
-  { value: 'hr', label: 'HR' },
-];
-
 const MODULE_ACCESS = {
   leads: {
     label: 'Leads',

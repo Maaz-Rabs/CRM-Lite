@@ -75,7 +75,7 @@ function FlyToUser({ user }) {
 export default function TrackUser() {
   const { showToast } = useToast();
   const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');

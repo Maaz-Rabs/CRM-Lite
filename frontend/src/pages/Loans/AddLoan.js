@@ -45,8 +45,6 @@ const AddLoan = () => {
   const { id } = useParams();
   const isEditing = !!id;
   const { fetchLoans, createLoanRecord, updateLoanRecord } = useCRM();
-  const { apiFetch } = useCRM(); // may be undefined — fall back
-  // Direct fetch used via CRMContext actions below
 
   const [form, setForm] = useState({ ...emptyForm });
   const [errors, setErrors] = useState({});

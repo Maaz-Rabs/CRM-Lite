@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Eye, Building2, MapPin, Calendar, Phone, MessageCircle, X, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Eye, Building2, MapPin, Phone, MessageCircle, X, AlertTriangle, Image as ImageIcon } from 'lucide-react';
 import './SharedView.css';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';

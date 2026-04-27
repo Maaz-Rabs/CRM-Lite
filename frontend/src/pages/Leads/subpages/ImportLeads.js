@@ -7,7 +7,7 @@ import LeadTable from '../../../components/leads/LeadTable';
 import { Button, Modal } from '../../../components/common/Common';
 import { apiFetch } from '../../../utils/api';
 import useLeads from '../../../hooks/useLeads';
-import { Plus, Upload, FileSpreadsheet, Download, X, CheckCircle, AlertCircle, FileText, ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react';
+import { Plus, Upload, FileSpreadsheet, Download, CheckCircle, AlertCircle, FileText, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 
 const EXPECTED_COLUMNS = ['name', 'country_code', 'mobile', 'email', 'source', 'buyer_type', 'investment_type', 'country', 'state', 'city', 'locality', 'other_details'];
 

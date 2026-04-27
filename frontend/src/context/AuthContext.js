@@ -8,7 +8,6 @@ import {
   getStoredTokens,
   getStoredClient,
   getStoredPermissions,
-  STORAGE_KEYS,
 } from '../utils/api';
 
 const AuthContext = createContext();

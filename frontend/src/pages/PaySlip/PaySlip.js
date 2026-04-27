@@ -4,7 +4,7 @@ import { apiFetch } from '../../utils/api';
 import Header from '../../components/layout/Header';
 import { Button, Modal } from '../../components/common/Common';
 import {
-  Plus, Edit2, Trash2, Eye, Search, Download, Printer,
+  Plus, Edit2, Trash2, Eye, Search, Printer,
   Receipt, Calendar, CheckCircle2, Clock, IndianRupee, FileText, X, Filter
 } from 'lucide-react';
 import './PaySlip.css';
@@ -43,7 +43,7 @@ const formatDate = (d) => {
 };
 
 const PaySlip = () => {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
   const [payslips, setPayslips] = useState([]);
   const [users, setUsers] = useState([]);

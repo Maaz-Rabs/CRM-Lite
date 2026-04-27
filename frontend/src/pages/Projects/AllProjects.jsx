@@ -4,7 +4,7 @@ import { apiFetch } from '../../utils/api';
 import { useToast } from '../../context/ToastContext';
 import {
   FolderKanban, Plus, Search, Trash2, Edit2, Eye,
-  Calendar, CheckCircle2, AlertCircle, Building2, MapPin
+  CheckCircle2, AlertCircle, Building2
 } from 'lucide-react';
 import './AllProjects.css';
 

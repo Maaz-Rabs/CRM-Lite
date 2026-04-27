@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../../utils/api';
 import { useToast } from '../../context/ToastContext';
 import Header from '../../components/layout/Header';
-import { Button, Modal, FormInput, FormSelect, Badge } from '../../components/common/Common';
+import { Button, Modal, FormInput, FormSelect } from '../../components/common/Common';
 import MediaUploader from '../../components/common/MediaUploader';
 import {
   ArrowLeft, Edit2, Building2, Trash2, Plus, Search, Calendar,

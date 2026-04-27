@@ -97,9 +97,7 @@ const Header = ({ title, subtitle, actions }) => {
         fetchNotifications();
         showToast(title || 'New notification', 'info');
       });
-    } catch (err) {
-      console.log('[FCM] Setup error:', err);
-    }
+    } catch (err) {}
   };
 
   // ── Elapsed timer (updates every second) ──

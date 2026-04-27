@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../utils/api';
 import Header from '../../components/layout/Header';
 import { Button, Modal } from '../../components/common/Common';
-import { Plus, Search, Edit2, Trash2, Download, Users } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Download } from 'lucide-react';
 import './AllCandidates.css';
 
 const AllCandidates = () => {

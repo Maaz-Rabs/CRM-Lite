@@ -15,9 +15,7 @@ const app = initializeApp(firebaseConfig);
 let messaging = null;
 try {
   messaging = getMessaging(app);
-} catch (e) {
-  console.log('[FCM] Messaging not supported in this browser');
-}
+} catch (e) {}
 
 /**
  * Request notification permission and get FCM token
@@ -28,18 +26,15 @@ export const requestNotificationPermission = async () => {
 
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
-      console.log('[FCM] Permission denied');
       return null;
     }
 
     const token = await getToken(messaging, {
-      vapidKey: '', // Add VAPID key from Firebase console if needed
+      vapidKey: '',
     });
 
-    console.log('[FCM] Token:', token?.substring(0, 20) + '...');
     return token;
   } catch (err) {
-    console.log('[FCM] Token error:', err);
     return null;
   }
 };
@@ -50,7 +45,6 @@ export const requestNotificationPermission = async () => {
 export const onForegroundMessage = (callback) => {
   if (!messaging) return () => {};
   return onMessage(messaging, (payload) => {
-    console.log('[FCM] Foreground message:', payload);
     callback(payload);
   });
 };

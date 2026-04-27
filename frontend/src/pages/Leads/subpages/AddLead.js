@@ -112,58 +112,6 @@ const AddLead = () => {
     classification: false,
   });
   const [toast, setToast] = useState(null);
-  // useEffect(() => {
-  //   const loadLead = async () => {
-  //     setLoadingLead(true);
-  //     const res = await fetchLead(editId);
-  //     setLoadingLead(false);
-  //     if (res.success && res.data?.lead) {
-  //       const lead = res.data.lead;
-  //       setFormData({
-  //         name: lead.name || '',
-  //         mobile: lead.mobile || '',
-  //         email: lead.email || '',
-  //         alt_mobile: lead.alt_mobile || '',
-  //         alt_email: lead.alt_email || '',
-  //         country_code: lead.country_code || '+91',
-  //         alt_country_code: lead.alt_country_code || '+91',
-  //         source_type: lead.source_type || 'direct',
-  //         src_id: lead.src_id || '',
-  //         broker_id: lead.broker_id || '',
-  //         ref_name: lead.ref_name || '',
-  //         ref_mobile: lead.ref_mobile || '',
-  //         ref_email: lead.ref_email || '',
-  //         ref_country_code: lead.ref_country_code || '+91',
-  //         buyer_type: lead.buyer_type || '',
-  //         investment_type: lead.investment_type || '',
-  //         ls_id: lead.ls_id || '',
-  //         lp_id: lead.lp_id || '',
-  //         st_id: lead.requirements?.st_id || '',
-  //         project_ids: lead.requirements?.project_ids || [],
-  //         pt_id: lead.requirements?.pt_id || '',
-  //         pc_ids: lead.requirements?.pc_ids || [],
-  //         min_area: lead.requirements?.min_area || '',
-  //         max_area: lead.requirements?.max_area || '',
-  //         area_unit: lead.requirements?.area_unit || 'sqft',
-  //         min_budget: lead.requirements?.min_budget || '',
-  //         max_budget: lead.requirements?.max_budget || '',
-  //         budget_currency: lead.requirements?.budget_currency || 'INR',
-  //         country: lead.country || '',
-  //         state: lead.state || '',
-  //         city: lead.city || '',
-  //         locality: lead.locality || '',
-  //         handover_preference: lead.requirements?.handover_preference || '',
-  //         post_handover: lead.requirements?.post_handover || '',
-  //         other_details: lead.requirements?.other_details || '',
-  //       });
-  //     } else {
-  //       setToast({ message: 'Failed to load lead details', type: 'error' });
-  //       setTimeout(() => navigate('/leads'), 1500);
-  //     }
-  //   };
-
-  //   if (isEdit) loadLead();
-  // }, [editId, fetchLead, navigate, isEdit]);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -345,9 +293,7 @@ const handleSubmit = async () => {
             body: fd,
             headers: {},
           });
-        } catch (err) {
-          console.log("Doc upload error:", err);
-        }
+        } catch (err) {}
       }
     }
 

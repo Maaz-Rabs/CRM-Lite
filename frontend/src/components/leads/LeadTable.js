@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCRM } from '../../context/CRMContext';
 import { apiFetch, getFileUrl } from '../../utils/api';
@@ -281,7 +281,7 @@ const LeadTable = ({
         setViewDetail(res.data?.lead || lead);
         setViewTimeline(res.data?.lead?.activities || []);
       }
-    } catch (err) { console.log('View detail error:', err); }
+    } catch (err) {}
     setViewLoading(false);
   };
 
@@ -314,7 +314,7 @@ const LeadTable = ({
       if (res.success && res.data?.lead?.activities) {
         setQuickEditTimeline(res.data.lead.activities);
       }
-    } catch (err) { console.log('Timeline fetch error:', err); }
+    } catch (err) {}
     setTimelineLoading(false);
   };
 

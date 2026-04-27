@@ -4,7 +4,6 @@ import {
   Building2, LogIn, Eye, EyeOff, Loader2, Sun, Moon,
   Users, TrendingUp, ShieldCheck, ChevronLeft, ChevronRight
 } from 'lucide-react';
-// import { ArrowRight } from 'lucide-react'; // used by client-code step (commented)
 import { STORAGE_KEYS } from '../../utils/api';
 import './Login.css';
 
@@ -28,13 +27,7 @@ const SLIDES = [
 ];
 
 const Login = () => {
-  const {
-    // isClientVerified, verifyClientCode, // client-code flow (commented)
-    login,
-  } = useAuth();
-
-  // const [step, setStep] = useState(isClientVerified ? 'login' : 'client'); // client-code flow (commented)
-  // const [clientCode, setClientCode] = useState(''); // client-code flow (commented)
+  const { login } = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -70,22 +63,6 @@ const Login = () => {
       localStorage.setItem(STORAGE_KEYS.CLIENT_DATA, JSON.stringify(defaultClient));
     }
   }, []);
-
-  // ─── Client-code verification handler (commented for now) ─────
-  // const handleVerifyClient = async (e) => {
-  //   e.preventDefault();
-  //   if (!clientCode.trim()) { setError('Please enter client code'); return; }
-  //   setLoading(true);
-  //   setError('');
-  //   const result = await verifyClientCode(clientCode.trim());
-  //   setLoading(false);
-  //   if (result.success) {
-  //     setStep('login');
-  //     setError('');
-  //   } else {
-  //     setError(result.message);
-  //   }
-  // };
 
   const handleLogin = async (e) => {
     e.preventDefault();

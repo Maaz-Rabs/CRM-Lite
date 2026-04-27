@@ -18,7 +18,6 @@ const ViewProperty = () => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDelete, setShowDelete] = useState(false);
-  const [toast, setToast] = useState(null);
 
   // Share state
   const [showShareModal, setShowShareModal] = useState(false);

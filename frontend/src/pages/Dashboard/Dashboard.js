@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useCRM } from '../../context/CRMContext';
 import Header from '../../components/layout/Header';
 import { StatCard } from '../../components/common/Common';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import {
-  Users, TrendingUp, Target, Sparkles, UserCheck, UserX, Phone, ArrowUpRight,
-  Calendar, Clock, Activity, Briefcase, Building2, Zap, CheckCircle
+  Users, Target, Sparkles, UserCheck, UserX, Phone, ArrowUpRight,
+  Calendar, Clock, Activity, Briefcase, Building2, Zap
 } from 'lucide-react';
 import { apiFetch } from '../../utils/api';
 import './Dashboard.css';

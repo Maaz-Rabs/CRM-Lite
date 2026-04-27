@@ -4,7 +4,7 @@ import { apiFetch } from '../../utils/api';
 import Header from '../../components/layout/Header';
 import { Button, Modal } from '../../components/common/Common';
 import {
-  Plus, Search, Eye, Edit2, Trash2, MapPin, Bed, Bath, Maximize,
+  Plus, Search, Eye, Edit2, Trash2, MapPin, Bed, Bath,
   ChevronLeft, ChevronRight
 } from 'lucide-react';
 import './Properties.css';
