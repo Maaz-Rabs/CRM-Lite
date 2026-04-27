@@ -1,0 +1,33 @@
+name: Push Maintenance Page
+
+on:
+  repository_dispatch:
+    types: [push-maintenance]
+
+jobs:
+  push-maintenance:
+    name: Push Under Maintenance Page
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mask sensitive inputs
+        run: echo "::add-mask::${{ github.event.client_payload.fe_ftp_password }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare maintenance file
+        run: |
+          mkdir -p maintenance-upload
+          cp Frontend/maintenance.html maintenance-upload/index.html
+
+      - name: Push index.html via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ github.event.client_payload.ftp_host }}
+          port: ${{ github.event.client_payload.ftp_port }}
+          username: ${{ github.event.client_payload.fe_ftp_username }}
+          password: ${{ github.event.client_payload.fe_ftp_password }}
+          local-dir: ./maintenance-upload/
+          server-dir: ./
+          dangerous-clean-slate: true

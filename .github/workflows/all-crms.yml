@@ -1,0 +1,166 @@
+name: Deploy / Maintenance - All CRMs
+
+on:
+  repository_dispatch:
+    types: [deploy-all, maintenance-all]
+
+jobs:
+  prepare-matrix:
+    name: Fetch all FTP configs
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      count: ${{ steps.set-matrix.outputs.count }}
+    steps:
+      - name: Mask deploy key
+        run: echo "::add-mask::${{ secrets.LMS_DEPLOY_KEY }}"
+
+      - name: Fetch bulk config from API
+        id: set-matrix
+        run: |
+          response=$(curl -sS \
+            -H "x-deploy-key: ${{ secrets.LMS_DEPLOY_KEY }}" \
+            "${{ secrets.LMS_API_BASE }}/api/v1/ftp-connections/all-configs")
+          matrix=$(echo "$response" | jq -c '{include: .connections}')
+          count=$(echo "$response" | jq '.connections | length')
+          echo "Targets: $count"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          echo "count=$count" >> $GITHUB_OUTPUT
+
+  deploy-frontend-all:
+    name: Deploy FE - ${{ matrix.client_code || matrix.ftp_connection_id }}
+    if: >
+      github.event.action == 'deploy-all' &&
+      needs.prepare-matrix.outputs.count != '0' &&
+      (github.event.client_payload.deploy_type == 'frontend' || github.event.client_payload.deploy_type == 'full')
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+
+    steps:
+      - name: Mask sensitive inputs
+        run: echo "::add-mask::${{ matrix.fe_ftp_password }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Frontend dependencies
+        working-directory: ./Frontend
+        run: npm install
+
+      - name: Generate Frontend config.js from bulk config
+        working-directory: ./Frontend
+        run: echo '${{ matrix.frontend_config_b64 }}' | base64 -d > public/config.js
+
+      - name: Build Frontend
+        working-directory: ./Frontend
+        run: npm run build
+
+      - name: Deploy Frontend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ matrix.ftp_host }}
+          port: 21
+          username: ${{ matrix.fe_ftp_user }}
+          password: ${{ matrix.fe_ftp_password }}
+          local-dir: ./Frontend/build/
+          server-dir: ./
+          dangerous-clean-slate: ${{ matrix.clean_slate || false }}
+
+  deploy-backend-all:
+    name: Deploy BE - ${{ matrix.client_code || matrix.ftp_connection_id }}
+    if: >
+      github.event.action == 'deploy-all' &&
+      needs.prepare-matrix.outputs.count != '0' &&
+      (github.event.client_payload.deploy_type == 'backend' || github.event.client_payload.deploy_type == 'full')
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+
+    steps:
+      - name: Mask sensitive inputs
+        run: echo "::add-mask::${{ matrix.be_ftp_password }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Backend .env from bulk config
+        working-directory: ./Backend
+        run: echo '${{ matrix.env_b64 }}' | base64 -d > .env
+
+      - name: Deploy Backend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ matrix.ftp_host }}
+          port: 21
+          username: ${{ matrix.be_ftp_user }}
+          password: ${{ matrix.be_ftp_password }}
+          local-dir: ./Backend/
+          server-dir: ./
+          dangerous-clean-slate: ${{ matrix.clean_slate || false }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env.example
+            logs/**
+            **/logs/**
+
+      - name: Install deps & reload PM2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ matrix.ftp_host }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            set -e
+            cd "${{ matrix.backend_path }}"
+            export NPM_CONFIG_CACHE="$HOME/.npm-cache"
+            mkdir -p "$NPM_CONFIG_CACHE"
+            npm ci --omit=dev || npm install --omit=dev
+            sudo pm2 reload "${{ matrix.pm2_app_name }}" || sudo pm2 start server.js --name "${{ matrix.pm2_app_name }}"
+            sudo pm2 save
+
+  maintenance-all:
+    name: Maintenance - ${{ matrix.client_code || matrix.ftp_connection_id }}
+    if: github.event.action == 'maintenance-all' && needs.prepare-matrix.outputs.count != '0'
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+
+    steps:
+      - name: Mask sensitive inputs
+        run: echo "::add-mask::${{ matrix.fe_ftp_password }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare maintenance file
+        run: |
+          mkdir -p maintenance-upload
+          cp Frontend/maintenance.html maintenance-upload/index.html
+
+      - name: Push maintenance via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ matrix.ftp_host }}
+          port: 21
+          username: ${{ matrix.fe_ftp_user }}
+          password: ${{ matrix.fe_ftp_password }}
+          local-dir: ./maintenance-upload/
+          server-dir: ./
+          dangerous-clean-slate: true

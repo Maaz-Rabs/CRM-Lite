@@ -1,0 +1,138 @@
+name: Deploy CRM
+
+on:
+  repository_dispatch:
+      types: [deploy-crm]
+
+jobs:
+  deploy-frontend:
+    name: Build & Deploy Frontend
+    if: github.event.client_payload.deploy_type == 'frontend' || github.event.client_payload.deploy_type == 'full'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mask deploy key
+        run: echo "::add-mask::${{ secrets.LMS_DEPLOY_KEY }}"
+
+      - name: Fetch FTP creds + frontend config from API
+        id: fetch
+        env:
+          ID: ${{ github.event.client_payload.ftp_connection_id }}
+          BASE: ${{ secrets.LMS_API_BASE }}
+          KEY: ${{ secrets.LMS_DEPLOY_KEY }}
+        run: |
+          ftp=$(curl -sS -H "x-deploy-key: $KEY" "$BASE/api/v1/ftp-connections/$ID")
+          cfg=$(curl -sS -H "x-deploy-key: $KEY" "$BASE/api/v1/ftp-connections/$ID/config")
+          FTP_HOST=$(echo "$ftp" | jq -r '.connection.ftp_host')
+          FE_USER=$(echo "$ftp" | jq -r '.connection.fe_ftp_user')
+          FE_PASS=$(echo "$ftp" | jq -r '.connection.fe_ftp_password')
+          CONFIG_B64=$(echo "$cfg" | jq -r '.config' | base64 -w0)
+          echo "::add-mask::$FE_PASS"
+          echo "ftp_host=$FTP_HOST" >> $GITHUB_OUTPUT
+          echo "fe_user=$FE_USER" >> $GITHUB_OUTPUT
+          echo "fe_pass=$FE_PASS" >> $GITHUB_OUTPUT
+          echo "config_b64=$CONFIG_B64" >> $GITHUB_OUTPUT
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./Frontend
+        run: npm install
+
+      - name: Generate Frontend config.js
+        working-directory: ./Frontend
+        run: echo '${{ steps.fetch.outputs.config_b64 }}' | base64 -d > public/config.js
+
+      - name: Build
+        working-directory: ./Frontend
+        run: npm run build
+
+      - name: Deploy Frontend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ steps.fetch.outputs.ftp_host }}
+          port: 21
+          username: ${{ steps.fetch.outputs.fe_user }}
+          password: ${{ steps.fetch.outputs.fe_pass }}
+          local-dir: ./Frontend/build/
+          server-dir: ./
+          dangerous-clean-slate: ${{ github.event.client_payload.clean_slate || false }}
+
+  deploy-backend:
+    name: Deploy Backend
+    if: github.event.client_payload.deploy_type == 'backend' || github.event.client_payload.deploy_type == 'full'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mask deploy key
+        run: echo "::add-mask::${{ secrets.LMS_DEPLOY_KEY }}"
+
+      - name: Fetch FTP creds + backend env from API
+        id: fetch
+        env:
+          ID: ${{ github.event.client_payload.ftp_connection_id }}
+          BASE: ${{ secrets.LMS_API_BASE }}
+          KEY: ${{ secrets.LMS_DEPLOY_KEY }}
+        run: |
+          ftp=$(curl -sS -H "x-deploy-key: $KEY" "$BASE/api/v1/ftp-connections/$ID")
+          envr=$(curl -sS -H "x-deploy-key: $KEY" "$BASE/api/v1/ftp-connections/$ID/env")
+          FTP_HOST=$(echo "$ftp" | jq -r '.connection.ftp_host')
+          BE_USER=$(echo "$ftp" | jq -r '.connection.be_ftp_user')
+          BE_PASS=$(echo "$ftp" | jq -r '.connection.be_ftp_password')
+          BACKEND_PATH=$(echo "$ftp" | jq -r '.connection.backend_path')
+          PM2_APP=$(echo "$ftp" | jq -r '.connection.pm2_app_name')
+          ENV_B64=$(echo "$envr" | jq -r '.env' | base64 -w0)
+          echo "::add-mask::$BE_PASS"
+          echo "ftp_host=$FTP_HOST" >> $GITHUB_OUTPUT
+          echo "be_user=$BE_USER" >> $GITHUB_OUTPUT
+          echo "be_pass=$BE_PASS" >> $GITHUB_OUTPUT
+          echo "backend_path=$BACKEND_PATH" >> $GITHUB_OUTPUT
+          echo "pm2_app=$PM2_APP" >> $GITHUB_OUTPUT
+          echo "env_b64=$ENV_B64" >> $GITHUB_OUTPUT
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Backend .env
+        working-directory: ./Backend
+        run: echo '${{ steps.fetch.outputs.env_b64 }}' | base64 -d > .env
+
+      - name: Deploy Backend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ steps.fetch.outputs.ftp_host }}
+          port: 21
+          username: ${{ steps.fetch.outputs.be_user }}
+          password: ${{ steps.fetch.outputs.be_pass }}
+          local-dir: ./Backend/
+          server-dir: ./
+          dangerous-clean-slate: ${{ github.event.client_payload.clean_slate || false }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env.example
+            logs/**
+            **/logs/**
+
+      - name: Install deps & reload PM2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ steps.fetch.outputs.ftp_host }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            set -e
+            cd "${{ steps.fetch.outputs.backend_path }}"
+            export NPM_CONFIG_CACHE="$HOME/.npm-cache"
+            mkdir -p "$NPM_CONFIG_CACHE"
+            npm ci --omit=dev || npm install --omit=dev
+            sudo pm2 reload "${{ steps.fetch.outputs.pm2_app }}" || sudo pm2 start server.js --name "${{ steps.fetch.outputs.pm2_app }}"
+            sudo pm2 save
