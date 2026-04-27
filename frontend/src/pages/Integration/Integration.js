@@ -1,68 +1,59 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Link2, Building2, Globe,
   Plus, RefreshCw, Zap, CheckCircle, Clock, Trash2, Eye, EyeOff,
-  AlertCircle, Search, X
+  AlertCircle, Search, X, Loader
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import { Modal, Button } from '../../components/common/Common';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import './Integration.css';
 
+const PROXY_BASE = 'http://localhost:5000/api/lead-integration';
+
 const ALL_SOURCES = [
-  { id: '99acres', name: '99acres', description: 'Import property inquiries from 99acres', icon: Building2, color: '#FF6B35', category: 'portal', available: true,
+  { id: '99acres', source_name: '99acres', name: '99acres', description: 'Import property inquiries from 99acres', icon: Building2, color: '#FF6B35', category: 'portal', available: true,
     fields: [
-      { key: 'clientId', label: 'Client ID', placeholder: 'Enter your 99acres Client ID', required: true },
-      { key: 'apiKey', label: 'API Key', placeholder: 'Enter your 99acres API Key', secure: true, required: true },
-      { key: 'email', label: 'Registered Email', placeholder: 'Enter registered email', type: 'email', required: true },
-      { key: 'autoSync', label: 'Auto Sync Interval (mins)', placeholder: '15', type: 'number' },
+      { key: 'branch', label: 'Branch', placeholder: 'e.g., Mumbai', required: true, group: 'meta' },
+      { key: 'acres_username', label: 'Username / Email', placeholder: 'Your 99acres username', required: true, group: 'credentials' },
+      { key: 'acres_password', label: 'Password', placeholder: 'Your 99acres password', secure: true, required: true, group: 'credentials' },
     ],
   },
-  { id: 'magicbricks', name: 'MagicBricks', description: 'Import leads from MagicBricks portal', icon: Building2, color: '#E53935', category: 'portal', available: true,
+  { id: 'magicbricks', source_name: 'magicbricks', name: 'MagicBricks', description: 'Import leads from MagicBricks portal', icon: Building2, color: '#E53935', category: 'portal', available: true,
     fields: [
-      { key: 'accountId', label: 'Account ID', placeholder: 'Enter your MagicBricks Account ID', required: true },
-      { key: 'apiKey', label: 'Secret Key', placeholder: 'Enter your MagicBricks Secret Key', secure: true, required: true },
-      { key: 'email', label: 'Registered Email', placeholder: 'Enter registered email', type: 'email', required: true },
-      { key: 'phone', label: 'Registered Mobile', placeholder: 'Enter registered mobile number', type: 'phone' },
-      { key: 'autoSync', label: 'Auto Sync Interval (mins)', placeholder: '15', type: 'number' },
+      { key: 'branch', label: 'Branch', placeholder: 'e.g., Delhi', required: true, group: 'meta' },
+      { key: 'api_key', label: 'API Key', placeholder: 'Your MagicBricks API Key', secure: true, required: true, group: 'credentials' },
     ],
   },
-  { id: 'housing', name: 'Housing.com', description: 'Sync leads from Housing.com', icon: Building2, color: '#00C853', category: 'portal', available: true,
+  { id: 'housing', source_name: 'housing', name: 'Housing.com', description: 'Sync leads from Housing.com', icon: Building2, color: '#00C853', category: 'portal', available: true,
     fields: [
-      { key: 'sellerId', label: 'Seller ID', placeholder: 'Enter your Housing.com Seller ID', required: true },
-      { key: 'apiToken', label: 'API Token', placeholder: 'Enter your Housing.com API Token', secure: true, required: true },
-      { key: 'email', label: 'Registered Email', placeholder: 'Enter registered email', type: 'email', required: true },
-      { key: 'autoSync', label: 'Auto Sync Interval (mins)', placeholder: '15', type: 'number' },
+      { key: 'branch', label: 'Branch', placeholder: 'e.g., Bangalore', required: true, group: 'meta' },
+      { key: 'housing_id', label: 'Housing ID', placeholder: 'Your Housing.com ID', required: true, group: 'credentials' },
+      { key: 'housing_key', label: 'Housing Key', placeholder: 'Your Housing.com Key', secure: true, required: true, group: 'credentials' },
     ],
   },
-  { id: 'facebook', name: 'Facebook Leads', description: 'Auto-import leads from Facebook Lead Ads', icon: Globe, color: '#1877F2', category: 'social', available: true,
+  { id: 'website', source_name: 'website', name: 'Website / WordPress', description: 'Capture leads from your website forms', icon: Globe, color: '#2196F3', category: 'web', available: true,
     fields: [
-      { key: 'pageId', label: 'Page ID', placeholder: 'Enter your Facebook Page ID', required: true },
-      { key: 'accessToken', label: 'Access Token', placeholder: 'Enter your long-lived access token', secure: true, required: true },
-      { key: 'formId', label: 'Lead Form ID', placeholder: 'Enter Lead Ad Form ID (optional)' },
-      { key: 'autoSync', label: 'Auto Sync Interval (mins)', placeholder: '15', type: 'number' },
+      { key: 'branch', label: 'Branch', placeholder: 'e.g., Main', required: true, group: 'meta' },
+      { key: 'api_key', label: 'API Key', placeholder: 'Your webhook API key', secure: true, required: true, group: 'credentials' },
     ],
   },
-  { id: 'website', name: 'Website / WordPress / Microsite', description: 'Capture leads from your website, WordPress or microsite contact forms', icon: Globe, color: '#2196F3', category: 'web', available: true,
-    fields: [
-      { key: 'websiteUrl', label: 'Website URL', placeholder: 'https://yourwebsite.com', required: true },
-      { key: 'apiKey', label: 'API Key', placeholder: 'Your webhook API key', secure: true, required: true },
-      { key: 'webhookUrl', label: 'Webhook URL (auto-generated)', placeholder: 'Will be generated after connection', type: 'text' },
-      { key: 'formSelector', label: 'Form Selector (CSS)', placeholder: '#contact-form or .lead-form' },
-    ],
+  { id: 'facebook', source_name: 'facebook', name: 'Facebook Leads', description: 'Auto-import leads from Facebook Lead Ads', icon: Globe, color: '#1877F2', category: 'social', available: false,
+    fields: [],
   },
 ];
 
-const DEMO_CONNECTED = [
-  { id: 1, sourceId: '99acres', name: '99acres', sourceName: '99acres Portal', color: '#FF6B35', icon: Building2, leadsToday: 8, leadsTotal: 234, lastSync: '2 min ago',
-    config: { clientId: 'RABS_99A_4821', apiKey: 'sk_live_xxxxxxxxxxxxx4821', email: 'leads@rabsconnect.com', autoSync: '15' } },
-  { id: 2, sourceId: 'magicbricks', name: 'MagicBricks', sourceName: 'MagicBricks Portal', color: '#E53935', icon: Building2, leadsToday: 6, leadsTotal: 189, lastSync: '5 min ago',
-    config: { accountId: 'MB_RABS_9920', apiKey: 'sk_mb_xxxxxxxxxxxxx9920', email: 'sales@rabsconnect.com', phone: '9876543210', autoSync: '15' } },
-];
+const findSourceMeta = (source_name) =>
+  ALL_SOURCES.find(s => s.source_name?.toLowerCase() === String(source_name).toLowerCase());
 
 export default function Integration() {
   const { showToast } = useToast();
-  const [connected, setConnected] = useState(DEMO_CONNECTED);
+  const { clientData } = useAuth();
+  const clientCode = clientData?.clientCode || '202898';
+
+  const [connected, setConnected] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [selectedSource, setSelectedSource] = useState(null);
@@ -70,13 +61,47 @@ export default function Integration() {
   const [selectedIntegration, setSelectedIntegration] = useState(null);
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [disconnectTarget, setDisconnectTarget] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const totalToday = connected.reduce((s, c) => s + c.leadsToday, 0);
-  const totalAll = connected.reduce((s, c) => s + c.leadsTotal, 0);
+  const loadConnections = useCallback(async () => {
+    if (!clientCode) return;
+    setLoading(true);
+    try {
+      const r = await fetch(`${PROXY_BASE}/credentials/${encodeURIComponent(clientCode)}`);
+      const data = await r.json();
+      const list = Array.isArray(data?.sources) ? data.sources : [];
+      const mapped = list.map(item => {
+        const meta = findSourceMeta(item.source_name) || {};
+        return {
+          id: item.credential_id,
+          credentialId: item.credential_id,
+          sourceId: meta.id || item.source_name,
+          source_name: item.source_name,
+          name: meta.name || item.source_name,
+          sourceName: `${meta.name || item.source_name} — ${item.branch}`,
+          branch: item.branch,
+          color: meta.color || '#6b7280',
+          icon: meta.icon || Globe,
+          leadsToday: 0,
+          leadsTotal: 0,
+          lastSync: '—',
+          config: { branch: item.branch, ...(item.credentials || {}) },
+        };
+      });
+      setConnected(mapped);
+    } catch (err) {
+      showToast('Failed to load integrations', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [clientCode, showToast]);
 
-  const connectedIds = connected.map(c => c.sourceId);
+  useEffect(() => { loadConnections(); }, [loadConnections]);
+
+  const totalToday = connected.reduce((s, c) => s + (c.leadsToday || 0), 0);
+  const totalAll = connected.reduce((s, c) => s + (c.leadsTotal || 0), 0);
+
   const filteredSources = ALL_SOURCES.filter(s => {
-    if (connectedIds.includes(s.id)) return false;
     if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
@@ -86,28 +111,79 @@ export default function Integration() {
     setShowConnectModal(true);
   }, []);
 
-  const handleSubmitConnect = useCallback((source, formData) => {
-    setConnected(prev => [...prev, {
-      id: Date.now(), sourceId: source.id, name: source.name,
-      sourceName: `${source.name} Portal`, color: source.color, icon: source.icon,
-      leadsToday: 0, leadsTotal: 0, lastSync: 'Just now', config: formData,
-    }]);
-    setShowConnectModal(false);
-    setSelectedSource(null);
-    showToast(`${source.name} connected successfully!`, 'success');
-  }, [showToast]);
+  const handleSubmitConnect = useCallback(async (source, formData) => {
+    if (!clientCode) {
+      showToast('Client code not available', 'error');
+      return;
+    }
+    const credentials = {};
+    let branch = '';
+    (source.fields || []).forEach(f => {
+      if (f.group === 'meta' && f.key === 'branch') branch = formData[f.key];
+      else if (f.group === 'credentials') credentials[f.key] = formData[f.key];
+    });
+
+    setSubmitting(true);
+    try {
+      const r = await fetch(`${PROXY_BASE}/credentials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_code: clientCode,
+          source_name: source.source_name,
+          branch,
+          credentials,
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok || data?.success === false) {
+        showToast(data?.message || 'Failed to connect', 'error');
+        return;
+      }
+      showToast(`${source.name} connected successfully!`, 'success');
+      setShowConnectModal(false);
+      setSelectedSource(null);
+      loadConnections();
+    } catch (err) {
+      showToast('Connection failed', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [clientCode, showToast, loadConnections]);
 
   const handleSync = useCallback((intg) => {
-    showToast(`${intg.name} is being synced...`, 'info');
+    showToast(`${intg.name} sync queued`, 'info');
   }, [showToast]);
 
-  const confirmDisconnect = useCallback(() => {
-    setConnected(prev => prev.filter(c => c.id !== disconnectTarget.id));
-    setShowDisconnectConfirm(false);
-    setShowDetailsModal(false);
-    showToast(`${disconnectTarget.name} disconnected`, 'success');
-    setDisconnectTarget(null);
-  }, [disconnectTarget, showToast]);
+  const confirmDisconnect = useCallback(async () => {
+    if (!disconnectTarget || !clientCode) return;
+    setSubmitting(true);
+    try {
+      const r = await fetch(`${PROXY_BASE}/credentials`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_code: clientCode,
+          source_name: disconnectTarget.source_name,
+          branch: disconnectTarget.branch,
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok || data?.success === false) {
+        showToast(data?.message || 'Failed to disconnect', 'error');
+        return;
+      }
+      showToast(`${disconnectTarget.name} disconnected`, 'success');
+      setShowDisconnectConfirm(false);
+      setShowDetailsModal(false);
+      setDisconnectTarget(null);
+      loadConnections();
+    } catch (err) {
+      showToast('Disconnect failed', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [disconnectTarget, clientCode, showToast, loadConnections]);
 
   return (
     <div>
@@ -115,50 +191,52 @@ export default function Integration() {
         title="API Integrations"
         subtitle="Connect third-party platforms to auto-import leads"
       />
-      <div className="page">
-        {/* Stats */}
-        <div className="intg-stats">
-          <div className="intg-stat-card intg-stat-card--gold">
-            <div className="intg-stat-card__icon intg-stat-card__icon--gold"><Link2 size={20} /></div>
-            <div>
-              <div className="intg-stat-card__val">{connected.length}</div>
-              <div className="intg-stat-card__lbl">Connected Sources</div>
-            </div>
-          </div>
-          <div className="intg-stat-card intg-stat-card--green">
-            <div className="intg-stat-card__icon intg-stat-card__icon--green"><Zap size={20} /></div>
-            <div>
-              <div className="intg-stat-card__val">{totalToday}</div>
-              <div className="intg-stat-card__lbl">Leads Today</div>
-            </div>
-          </div>
-          <div className="intg-stat-card intg-stat-card--blue">
-            <div className="intg-stat-card__icon intg-stat-card__icon--blue"><CheckCircle size={20} /></div>
-            <div>
-              <div className="intg-stat-card__val">{totalAll}</div>
-              <div className="intg-stat-card__lbl">Total Leads Imported</div>
+      <div className="page animate-fade-in">
+        {/* Hero */}
+        <div className="intg-hero">
+          <div className="intg-hero__icon"><Link2 size={26} /></div>
+          <div className="intg-hero__content">
+            <h2 className="intg-hero__title">Lead Source Integrations</h2>
+            <p className="intg-hero__sub">Connect third-party portals to auto-import leads into your pipeline.</p>
+            <div className="intg-hero__chips">
+              <span className="intg-hero__chip">
+                <Link2 size={12} /> {connected.length} Connected
+              </span>
+              <span className="intg-hero__chip">
+                <Zap size={12} /> {totalToday} Today
+              </span>
+              <span className="intg-hero__chip">
+                <CheckCircle size={12} /> {totalAll} Total Leads
+              </span>
             </div>
           </div>
         </div>
 
         {/* Connected */}
-        {connected.length > 0 && (
-          <div className="intg-section">
+        {loading ? (
+          <div className="intg-loading animate-fade-in">
+            <Loader size={28} className="intg-spin" />
+            <p>Loading integrations...</p>
+          </div>
+        ) : connected.length > 0 && (
+          <div className="intg-section-card">
             <div className="intg-section__head">
-              <h2 className="intg-section__title"><CheckCircle size={16} /> Active Connections ({connected.length})</h2>
+              <h2 className="intg-section__title"><CheckCircle size={13} /> Active Connections · {connected.length}</h2>
             </div>
             <div className="intg-connected">
               {connected.map(intg => {
                 const IC = intg.icon;
                 return (
-                  <div key={intg.id} className="intg-card" onClick={() => { setSelectedIntegration(intg); setShowDetailsModal(true); }}>
+                  <div key={intg.id} className="intg-card intg-card--colored"
+                    style={{ borderLeftColor: intg.color }}
+                    onClick={() => { setSelectedIntegration(intg); setShowDetailsModal(true); }}>
                     <div className="intg-card__top">
                       <div className="intg-card__icon" style={{ backgroundColor: intg.color + '12' }}>
                         <IC size={22} style={{ color: intg.color }} />
                       </div>
                       <div className="intg-card__info">
                         <span className="intg-card__name">{intg.name}</span>
-                        <span className="intg-card__badge"><CheckCircle size={11} /> Active</span>
+                        <span className="intg-card__badge"><CheckCircle size={11} /> {intg.branch}</span>
                       </div>
                       <button className="intg-card__sync" title="Sync Now"
                         onClick={(e) => { e.stopPropagation(); handleSync(intg); }}>
@@ -189,9 +267,9 @@ export default function Integration() {
         )}
 
         {/* Available Sources */}
-        <div className="intg-section">
+        <div className="intg-section-card">
           <div className="intg-section__head">
-            <h2 className="intg-section__title"><Plus size={16} /> Available Integrations</h2>
+            <h2 className="intg-section__title"><Plus size={13} /> Available Integrations</h2>
           </div>
           <div className="intg-filters">
             <div className="intg-search">
@@ -215,7 +293,7 @@ export default function Integration() {
                     <span className="intg-source__desc">{source.description}</span>
                   </div>
                   {source.available ? (
-                    <button className="intg-source__btn" style={{ backgroundColor: source.color }}>
+                    <button className="intg-source__btn">
                       <Plus size={13} /> Connect
                     </button>
                   ) : (
@@ -232,7 +310,7 @@ export default function Integration() {
       </div>
 
       {/* Connect Form Modal */}
-      <ConnectFormModal isOpen={showConnectModal} source={selectedSource}
+      <ConnectFormModal isOpen={showConnectModal} source={selectedSource} submitting={submitting}
         onClose={() => { setShowConnectModal(false); setSelectedSource(null); }}
         onSubmit={handleSubmitConnect} />
 
@@ -246,11 +324,13 @@ export default function Integration() {
       <Modal isOpen={showDisconnectConfirm} onClose={() => setShowDisconnectConfirm(false)} title="Disconnect Integration" size="sm">
         <div className="intg-disconnect">
           <AlertCircle size={40} className="intg-disconnect__icon" />
-          <p>Are you sure you want to disconnect <strong>{disconnectTarget?.name}</strong>?</p>
+          <p>Are you sure you want to disconnect <strong>{disconnectTarget?.name}</strong> ({disconnectTarget?.branch})?</p>
           <p className="intg-disconnect__sub">Lead syncing will stop immediately. Existing leads won't be affected.</p>
           <div className="intg-disconnect__actions">
-            <Button variant="ghost" onClick={() => setShowDisconnectConfirm(false)}>Cancel</Button>
-            <Button variant="danger" onClick={confirmDisconnect}>Disconnect</Button>
+            <Button variant="ghost" onClick={() => setShowDisconnectConfirm(false)} disabled={submitting}>Cancel</Button>
+            <Button variant="danger" onClick={confirmDisconnect} disabled={submitting}>
+              {submitting ? 'Disconnecting...' : 'Disconnect'}
+            </Button>
           </div>
         </div>
       </Modal>
@@ -259,7 +339,7 @@ export default function Integration() {
 }
 
 /* ── Connect Form Modal ── */
-function ConnectFormModal({ isOpen, source, onClose, onSubmit }) {
+function ConnectFormModal({ isOpen, source, submitting, onClose, onSubmit }) {
   const [formData, setFormData] = useState({});
   const [showSecure, setShowSecure] = useState({});
   const [errors, setErrors] = useState({});
@@ -280,10 +360,8 @@ function ConnectFormModal({ isOpen, source, onClose, onSubmit }) {
   const handleSubmit = () => {
     const errs = {};
     (source.fields || []).forEach(f => {
-      if (f.required && (!formData[f.key] || formData[f.key].trim() === ''))
+      if (f.required && (!formData[f.key] || String(formData[f.key]).trim() === ''))
         errs[f.key] = `${f.label} is required`;
-      if (f.type === 'email' && formData[f.key] && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData[f.key]))
-        errs[f.key] = 'Invalid email address';
     });
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -322,7 +400,7 @@ function ConnectFormModal({ isOpen, source, onClose, onSubmit }) {
               </label>
               <div className={`intg-form__input-wrap ${errors[field.key] ? 'intg-form__input-wrap--error' : ''}`}>
                 <input
-                  type={field.secure && !showSecure[field.key] ? 'password' : field.type === 'number' ? 'number' : 'text'}
+                  type={field.secure && !showSecure[field.key] ? 'password' : 'text'}
                   className="intg-form__input"
                   placeholder={field.placeholder}
                   value={formData[field.key] || ''}
@@ -341,9 +419,9 @@ function ConnectFormModal({ isOpen, source, onClose, onSubmit }) {
         </div>
 
         <div className="intg-form__actions">
-          <button className="intg-form__cancel" onClick={onClose}>Cancel</button>
-          <button className="intg-form__submit" style={{ backgroundColor: source.color }} onClick={handleSubmit}>
-            <Zap size={15} /> Connect
+          <button className="intg-form__cancel" onClick={onClose} disabled={submitting}>Cancel</button>
+          <button className="intg-form__submit" onClick={handleSubmit} disabled={submitting}>
+            <Zap size={15} /> {submitting ? 'Connecting...' : 'Connect'}
           </button>
         </div>
       </div>
@@ -376,7 +454,7 @@ function DetailsModal({ isOpen, integration, onClose, onSync, onDisconnect }) {
           <CheckCircle size={18} />
           <div>
             <span className="intg-det__status-title">Connected & Active</span>
-            <span className="intg-det__status-sub">Last synced: {integration.lastSync}</span>
+            <span className="intg-det__status-sub">Branch: {integration.branch}</span>
           </div>
         </div>
 
@@ -396,10 +474,10 @@ function DetailsModal({ isOpen, integration, onClose, onSync, onDisconnect }) {
           {Object.entries(integration.config || {}).map(([k, v]) => (
             <div key={k} className="intg-det__cfg-row">
               <span className="intg-det__cfg-key">
-                {k.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase())}
+                {k.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase())}
               </span>
               <span className="intg-det__cfg-val">
-                {k.toLowerCase().includes('key') || k.toLowerCase().includes('token') || k.toLowerCase().includes('secret')
+                {k.toLowerCase().includes('key') || k.toLowerCase().includes('token') || k.toLowerCase().includes('secret') || k.toLowerCase().includes('password')
                   ? '••••••••' + String(v).slice(-4) : v}
               </span>
             </div>

@@ -46,6 +46,7 @@ import PaySlip from "./pages/PaySlip/PaySlip";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import Profile from "./pages/Profile/Profile";
 import Settings from "./pages/Settings/Settings";
+import HelpCenter from "./pages/HelpCenter/HelpCenter";
 import LeadsReport from "./pages/LeadsReport/LeadsReport";
 import UserLeadsReport from "./pages/LeadsReport/UserLeadsReport";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -108,6 +109,7 @@ function AppContent() {
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/help-center" element={<HelpCenter />} />
           <Route path="/leads-report" element={<LeadsReport />} />
           <Route path="/leads-report/:userId" element={<UserLeadsReport />} />
           <Route path="*" element={<Navigate to="/" />} />

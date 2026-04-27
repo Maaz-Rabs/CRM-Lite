@@ -92,6 +92,7 @@ app.use('/api/lead-scheduling', require('./routes/leadScheduling'));
 app.use('/api/ticket-webhook', require('./routes/ticketWebhook'));
 app.use('/api/dynamic-fields', require('./routes/dynamicFields'));
 app.use('/api/payslips', require('./routes/payslips'));
+app.use('/api/lead-integration', require('./routes/leadIntegration'));
 
 // 404 handler
 app.use((req, res) => {

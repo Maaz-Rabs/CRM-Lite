@@ -39,6 +39,34 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
+  // Maintenance polling — every 30s once client_code is available
+  useEffect(() => {
+    const code = clientData?.clientCode;
+    if (!code) return;
+    if (window.location.pathname === '/maintenance.html') return;
+
+    let cancelled = false;
+    const NON_LIVE = new Set(['maintenance', 'maintenance_scheduled', 'deploy_scheduled']);
+    const check = async () => {
+      try {
+        const res = await apiFetchUtil('lead-integration/app-status', {
+          method: 'POST',
+          body: JSON.stringify({ client_code: code }),
+        });
+        if (cancelled) return;
+        // apiFetch wraps as { status: <httpCode>, ...data } — body's status overrides only if present
+        const bodyStatus = typeof res?.status === 'string' ? res.status : null;
+        if (bodyStatus && NON_LIVE.has(bodyStatus)) {
+          window.location.href = '/maintenance.html';
+        }
+      } catch (_) { /* ignore network errors */ }
+    };
+
+    check();
+    const id = setInterval(check, 30000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [clientData?.clientCode]);
+
   const isAuthenticated = !!user && !!tokens?.access_token;
   const isClientVerified = !!clientData?.apiBaseUrl;
 

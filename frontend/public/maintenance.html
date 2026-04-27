@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Under Maintenance — RABS Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #0a1628;
+      --navy-mid: #112240;
+      --navy-light: #1a3460;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-dim: rgba(201, 168, 76, 0.15);
+      --white: #f5f0e8;
+      --white-dim: rgba(245, 240, 232, 0.6);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Jost', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Animated background */
+    .bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(26, 52, 96, 0.8) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 80%, rgba(201, 168, 76, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 100% at 50% 50%, var(--navy-mid) 0%, var(--navy) 100%);
+    }
+
+    /* Grid lines */
+    .grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: 
+        linear-gradient(rgba(201, 168, 76, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201, 168, 76, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridShift 20s linear infinite;
+    }
+
+    @keyframes gridShift {
+      0% { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.12;
+      animation: float 8s ease-in-out infinite;
+      z-index: 0;
+    }
+    .orb-1 { width: 400px; height: 400px; background: var(--gold); top: -100px; right: -100px; animation-delay: 0s; }
+    .orb-2 { width: 300px; height: 300px; background: #1a3460; bottom: -50px; left: -80px; animation-delay: -3s; }
+    .orb-3 { width: 200px; height: 200px; background: var(--gold); bottom: 30%; right: 15%; animation-delay: -6s; opacity: 0.06; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* Main container */
+    .container {
+      position: relative;
+      z-index: 10;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* Logo / brand mark */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border: 1.5px solid var(--gold);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold-dim);
+    }
+
+    .brand-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--gold);
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--white);
+      text-transform: uppercase;
+    }
+
+    .brand-name span {
+      color: var(--gold);
+    }
+
+    /* Gold divider line */
+    .divider {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      margin: 0 auto 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    /* Gear icon */
+    .gear-wrap {
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.5s;
+    }
+
+    .gear-outer {
+      width: 80px;
+      height: 80px;
+      border: 1.5px solid rgba(201, 168, 76, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      position: relative;
+      animation: rotateSlow 12s linear infinite;
+    }
+
+    .gear-outer::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      border-radius: 50%;
+    }
+
+    .gear-outer svg {
+      width: 36px;
+      height: 36px;
+      fill: var(--gold);
+      animation: rotateSlow 12s linear infinite reverse;
+    }
+
+    @keyframes rotateSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Heading */
+    .heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 8vw, 6rem);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+    }
+
+    .heading em {
+      font-style: normal;
+      color: var(--gold);
+      display: block;
+    }
+
+    /* Subtext */
+    .subtext {
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.75s;
+    }
+
+    /* Description */
+    .description {
+      max-width: 480px;
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--white-dim);
+      line-height: 1.8;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.85s;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: min(360px, 90vw);
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 2px;
+      width: 0%;
+      animation: progressAnim 3s ease forwards 1.5s;
+    }
+
+    @keyframes progressAnim {
+      to { width: 75%; }
+    }
+
+    /* Bottom strip */
+    .bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      border-top: 1px solid rgba(201, 168, 76, 0.12);
+      background: rgba(10, 22, 40, 0.6);
+      backdrop-filter: blur(20px);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1.2s;
+    }
+
+    .bottom-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .bottom-item:hover { color: var(--gold); }
+
+    .bottom-item svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+      opacity: 0.7;
+    }
+
+    .bottom-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(201, 168, 76, 0.3);
+    }
+
+    /* Corner decorations */
+    .corner {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      z-index: 10;
+      opacity: 0.3;
+    }
+    .corner-tl { top: 20px; left: 20px; border-top: 1px solid var(--gold); border-left: 1px solid var(--gold); }
+    .corner-tr { top: 20px; right: 20px; border-top: 1px solid var(--gold); border-right: 1px solid var(--gold); }
+    .corner-bl { bottom: 70px; left: 20px; border-bottom: 1px solid var(--gold); border-left: 1px solid var(--gold); }
+    .corner-br { bottom: 70px; right: 20px; border-bottom: 1px solid var(--gold); border-right: 1px solid var(--gold); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Pulsing dot */
+    .pulse-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      margin-right: 8px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Corner decorations -->
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <div class="container">
+
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="brand-name">RABS <span>Connect</span></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="gear-wrap">
+      <div class="gear-outer">
+        <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </div>
+    </div>
+
+    <div class="heading">
+      Under
+      <em>Maintenance</em>
+    </div>
+
+    <div class="subtext">
+      <span class="pulse-dot"></span>
+      We'll be back shortly
+    </div>
+
+    <p class="description">
+      We're currently performing scheduled maintenance to improve your experience. 
+      Our team is working hard to bring the system back online as soon as possible.
+    </p>
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>System Restore</span>
+        <span>In Progress</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom">
+    <a href="mailto:support@rabsconnect.in" class="bottom-item">
+      <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      support@rabsconnect.in
+    </a>
+    <div class="bottom-dot"></div>
+    <span class="bottom-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Est. downtime: 30 min
+    </span>
+    <div class="bottom-dot"></div>
+    <span class="bottom-item">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Secured
+    </span>
+  </div>
+
+</body>
+</html>

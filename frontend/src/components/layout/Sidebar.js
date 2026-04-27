@@ -7,7 +7,7 @@ import {
   ChevronLeft, ChevronRight, ChevronDown, Crown,
   List, Sparkles, Upload, UserPlus, UserX, PlusCircle, BarChart3,
   PhoneCall, CreditCard, UserCog, FileText,
-  Receipt, Link2, KeyRound, Settings2, MapPin
+  Receipt, Link2, KeyRound, Settings2, MapPin, LifeBuoy
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -276,6 +276,16 @@ const Sidebar = () => {
         >
           <Link2 size={20} />
           {sidebarOpen && <span>API Integration</span>}
+        </NavLink>
+
+        {/* Help Center */}
+        <NavLink
+          to="/help-center"
+          className={({ isActive }) => `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
+          title="Help Center"
+        >
+          <LifeBuoy size={20} />
+          {sidebarOpen && <span>Help Center</span>}
         </NavLink>
 
         {/* Change Password */}

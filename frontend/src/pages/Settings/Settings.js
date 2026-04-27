@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Header from '../../components/layout/Header';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
-import { apiFetch } from '../../utils/api';
+import { apiFetch, STORAGE_KEYS } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { Button } from '../../components/common/Common';
+import { Button, Modal } from '../../components/common/Common';
 import {
   Moon, Clock, DollarSign, Bell, Volume2, Vibrate,
-  Plus, Trash2, Loader2, AlertCircle
+  Plus, Trash2, Loader2, AlertCircle, MessageCircle, Database,
+  AlertTriangle, ChevronRight, Save
 } from 'lucide-react';
 import './Settings.css';
 
@@ -17,7 +18,20 @@ const LOCAL_KEYS = {
   pushEnabled: 'rabs_pref_push',
   soundEnabled: 'rabs_pref_sound',
   vibrationEnabled: 'rabs_pref_vibration',
+  whatsappMsg: 'rabs_pref_whatsapp_msg',
 };
+
+const DEFAULT_WA_MSG = 'Hi {name}, this is regarding your enquiry. Let us know a good time to connect.';
+
+// localStorage keys to keep when clearing cache (so user stays logged in & client config persists)
+const PRESERVE_KEYS = [
+  STORAGE_KEYS.CLIENT_DATA,
+  STORAGE_KEYS.USER_DATA,
+  STORAGE_KEYS.TOKENS,
+  STORAGE_KEYS.PERMISSIONS,
+  STORAGE_KEYS.CRM_SETTINGS,
+  'app_theme',
+];
 
 const TIMEZONES = [
   'Asia/Kolkata', 'Asia/Dubai', 'Asia/Singapore', 'Asia/Tokyo',
@@ -50,8 +64,20 @@ const saveLocal = (key, val) => {
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user, logout } = useAuth();
   const { showToast } = useToast();
+
+  // WhatsApp default message
+  const [waMsg, setWaMsg] = useState(() => {
+    try { return localStorage.getItem(LOCAL_KEYS.whatsappMsg) || ''; } catch { return ''; }
+  });
+  const [waModalOpen, setWaModalOpen] = useState(false);
+  const [waDraft, setWaDraft] = useState('');
+
+  // Delete Account
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   // Local preferences
   const [timezone, setTimezone] = useState(() => loadLocal(LOCAL_KEYS.timezone, 'Asia/Kolkata'));
@@ -167,6 +193,81 @@ const Settings = () => {
     () => [...reminders].sort((a, b) => (a.minutes_offset || 0) - (b.minutes_offset || 0)),
     [reminders]
   );
+
+  // ─── WhatsApp message handlers ─────────────────────────────
+  const openWaModal = () => {
+    setWaDraft(waMsg || DEFAULT_WA_MSG);
+    setWaModalOpen(true);
+  };
+
+  const saveWaMsg = () => {
+    const trimmed = waDraft.trim();
+    try {
+      if (trimmed) localStorage.setItem(LOCAL_KEYS.whatsappMsg, trimmed);
+      else localStorage.removeItem(LOCAL_KEYS.whatsappMsg);
+    } catch { }
+    setWaMsg(trimmed);
+    setWaModalOpen(false);
+    showToast('WhatsApp message template saved', 'success');
+  };
+
+  const resetWaMsg = () => {
+    setWaDraft(DEFAULT_WA_MSG);
+  };
+
+  // ─── Clear cache handler ──────────────────────────────────
+  const handleClearCache = () => {
+    if (!window.confirm('Clear cached data? Your login and theme will be kept.')) return;
+    try {
+      const preserved = {};
+      PRESERVE_KEYS.forEach(k => {
+        const v = localStorage.getItem(k);
+        if (v !== null) preserved[k] = v;
+      });
+      localStorage.clear();
+      Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
+      // also wipe sessionStorage
+      try { sessionStorage.clear(); } catch { }
+      showToast('Cache cleared successfully', 'success');
+    } catch {
+      showToast('Failed to clear cache', 'error');
+    }
+  };
+
+  // ─── Delete account handler ───────────────────────────────
+  const openDeleteModal = () => {
+    setDeleteConfirmText('');
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      showToast('Type DELETE to confirm', 'error');
+      return;
+    }
+    const uid = user?.id || user?.u_id;
+    if (!uid) {
+      showToast('Could not determine your user id', 'error');
+      return;
+    }
+    setDeleting(true);
+    try {
+      const res = await apiFetch(`users/${uid}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ unassign: true }),
+      });
+      if (res.success) {
+        showToast('Account deleted', 'success');
+        setDeleteModalOpen(false);
+        setTimeout(() => { logout(); }, 800);
+      } else {
+        showToast(res.message || 'Failed to delete account', 'error');
+      }
+    } catch {
+      showToast('Connection failed', 'error');
+    }
+    setDeleting(false);
+  };
 
   const Toggle = ({ checked, onChange, disabled }) => (
     <button
@@ -343,8 +444,116 @@ const Settings = () => {
               </form>
             )}
           </section>
+
+          {/* WhatsApp */}
+          <section className="settings-card">
+            <h3 className="settings-section-title">WhatsApp</h3>
+            <button type="button" className="settings-row settings-row--clickable" onClick={openWaModal}>
+              <div className="settings-row__icon settings-row__icon--whatsapp"><MessageCircle size={16} /></div>
+              <div className="settings-row__main">
+                <span className="settings-row__title">Default WhatsApp Message</span>
+                <span className="settings-row__sub">
+                  {waMsg ? waMsg : 'Tap to set a message template'}
+                </span>
+              </div>
+              <ChevronRight size={16} className="settings-row__chevron" />
+            </button>
+          </section>
+
+          {/* Data & Storage */}
+          <section className="settings-card">
+            <h3 className="settings-section-title">Data &amp; Storage</h3>
+            <button type="button" className="settings-row settings-row--clickable" onClick={handleClearCache}>
+              <div className="settings-row__icon settings-row__icon--cache"><Database size={16} /></div>
+              <div className="settings-row__main">
+                <span className="settings-row__title">Clear Cache</span>
+                <span className="settings-row__sub">Free up storage space (login is preserved)</span>
+              </div>
+              <ChevronRight size={16} className="settings-row__chevron" />
+            </button>
+          </section>
+
+          {/* Danger Zone */}
+          <section className="settings-card settings-card--danger">
+            <h3 className="settings-section-title settings-section-title--danger">Danger Zone</h3>
+            <button type="button" className="settings-row settings-row--clickable settings-row--danger" onClick={openDeleteModal}>
+              <div className="settings-row__icon settings-row__icon--danger"><Trash2 size={16} /></div>
+              <div className="settings-row__main">
+                <span className="settings-row__title settings-row__title--danger">Delete Account</span>
+                <span className="settings-row__sub">Permanently delete your account</span>
+              </div>
+              <ChevronRight size={16} className="settings-row__chevron" />
+            </button>
+          </section>
+
         </div>
       </div>
+
+      {/* WhatsApp Message Modal */}
+      <Modal isOpen={waModalOpen} onClose={() => setWaModalOpen(false)} title="Default WhatsApp Message" size="md">
+        <div className="settings-modal">
+          <p className="settings-modal__hint">
+            This template will be used when sending WhatsApp messages from leads. You can use placeholders like <code>{'{name}'}</code> for personalization.
+          </p>
+          <textarea
+            className="settings-textarea"
+            rows={6}
+            value={waDraft}
+            onChange={e => setWaDraft(e.target.value)}
+            placeholder={DEFAULT_WA_MSG}
+            maxLength={1000}
+          />
+          <div className="settings-modal__meta">
+            <span>{waDraft.length} / 1000</span>
+            <button type="button" className="settings-link-btn" onClick={resetWaMsg}>
+              Reset to default
+            </button>
+          </div>
+          <div className="settings-modal__actions">
+            <Button variant="outline" onClick={() => setWaModalOpen(false)}>Cancel</Button>
+            <Button variant="gold" onClick={saveWaMsg}>
+              <Save size={14} /> Save Template
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Account Modal */}
+      <Modal isOpen={deleteModalOpen} onClose={() => !deleting && setDeleteModalOpen(false)} title="Delete Account" size="md">
+        <div className="settings-modal">
+          <div className="settings-danger-banner">
+            <AlertTriangle size={18} />
+            <div>
+              <strong>This action cannot be undone.</strong>
+              <p>Your account will be permanently deleted. Any leads currently assigned to you will be unassigned. You will be signed out immediately.</p>
+            </div>
+          </div>
+
+          <div className="settings-field">
+            <label>Type <strong>DELETE</strong> to confirm</label>
+            <input
+              type="text"
+              className="settings-input settings-input--full"
+              value={deleteConfirmText}
+              onChange={e => setDeleteConfirmText(e.target.value)}
+              placeholder="DELETE"
+              disabled={deleting}
+              autoFocus
+            />
+          </div>
+
+          <div className="settings-modal__actions">
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} disabled={deleting}>Cancel</Button>
+            <Button
+              variant="danger"
+              onClick={handleDeleteAccount}
+              disabled={deleting || deleteConfirmText !== 'DELETE'}
+            >
+              {deleting ? <><Loader2 size={14} className="spin" /> Deleting...</> : <><Trash2 size={14} /> Delete My Account</>}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
