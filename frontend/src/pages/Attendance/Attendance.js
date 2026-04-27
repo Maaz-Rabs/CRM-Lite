@@ -25,6 +25,16 @@ const AttBadge = ({ status }) => (
   </span>
 );
 
+// Compact "Late" indicator — driven by is_late flag set at punch-in
+const LatePill = () => <span className="att-late-pill" aria-label="Late arrival">LATE</span>;
+
+const PunchInCell = ({ time, isLate }) => (
+  <span className="att-punchin-cell">
+    {time || '--'}
+    {isLate ? <LatePill /> : null}
+  </span>
+);
+
 const getMonthRange = (monthStr) => {
   const [y, m] = monthStr.split('-').map(Number);
   const startDate = `${y}-${String(m).padStart(2, '0')}-01`;
@@ -244,7 +254,7 @@ const Attendance = () => {
                       </div>
                     )
                   },
-                  { header: 'Punch In', render: r => <span style={{ fontSize: 13 }}>{r.first_punch_in || '--'}</span> },
+                  { header: 'Punch In', render: r => <PunchInCell time={r.first_punch_in} isLate={r.is_late} /> },
                   { header: 'Punch Out', render: r => <span style={{ fontSize: 13 }}>{r.last_punch_out || '--'}</span> },
                   { header: 'Hours', render: r => <span style={{ fontWeight: 600, fontSize: 13 }}>{r.total_hours_fmt || '--'}</span> },
                   { header: 'Sessions', render: r => <Badge variant="default">{r.total_sessions || 0}</Badge> },
@@ -280,7 +290,7 @@ const Attendance = () => {
                 <Table
                   columns={[
                     { header: 'Session', render: r => <Badge variant="primary">#{r.session_no}</Badge> },
-                    { header: 'Punch In', render: r => <span style={{ fontSize: 13 }}>{r.punch_in_time || '--'}</span> },
+                    { header: 'Punch In', render: r => <PunchInCell time={r.punch_in_time} isLate={r.is_late} /> },
                     { header: 'Punch Out', render: r => <span style={{ fontSize: 13 }}>{r.punch_out_time || '--'}</span> },
                     { header: 'Hours', render: r => <span style={{ fontWeight: 600, fontSize: 13 }}>{r.total_hours || '--'}</span> },
                     { header: 'Location', render: r => <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>{r.punch_in_address || '--'}</span> },
@@ -295,7 +305,7 @@ const Attendance = () => {
               <Table
                 columns={[
                   { header: 'Session', render: r => <Badge variant="primary">#{r.session_no}</Badge> },
-                  { header: 'Punch In', render: r => <span style={{ fontSize: 13 }}>{r.punchIn || '--'}</span> },
+                  { header: 'Punch In', render: r => <PunchInCell time={r.punchIn} isLate={r.is_late} /> },
                   { header: 'Punch Out', render: r => <span style={{ fontSize: 13 }}>{r.punchOut || '--'}</span> },
                   { header: 'Hours', render: r => <span style={{ fontWeight: 600, fontSize: 13 }}>{r.hours || '--'}</span> },
                   { header: 'Location', render: r => <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>{r.punchInAddress || '--'}</span> },
@@ -325,6 +335,7 @@ const Attendance = () => {
             <StatCard icon={UserCheck} label="Present Days" value={stats.presentDays || 0} accent />
             <StatCard icon={Clock} label="Half Days" value={stats.halfdayDays || 0} />
             <StatCard icon={AlertTriangle} label="Absent" value={stats.absentDays || 0} />
+            <StatCard icon={Calendar} label="Week Off" value={stats.weekendDays || 0} />
             <StatCard icon={TrendingUp} label="Total Hours" value={`${stats.totalHours || 0}h`} />
           </div>
         )}
@@ -395,6 +406,7 @@ const Attendance = () => {
                   { header: 'Half Day', render: r => <span style={{ fontWeight: 600, color: 'var(--warning)', fontSize: 13 }}>{r.halfday_days || 0}</span> },
                   { header: 'Absent', render: r => <span style={{ fontWeight: 600, color: 'var(--danger)', fontSize: 13 }}>{r.absent_days || 0}</span> },
                   { header: 'Leave', render: r => <span style={{ fontSize: 13 }}>{r.leave_days || 0}</span> },
+                  { header: 'Week Off', render: r => <span style={{ fontSize: 13, color: 'var(--gray-500)' }}>{r.weekend_days || 0}</span> },
                   { header: 'Forgot Logout', render: r => <span style={{ fontSize: 13, color: '#bd7f0d' }}>{r.forgot_logout_days || 0}</span> },
                   { header: 'Total Hours', render: r => <span style={{ fontWeight: 600, fontSize: 13 }}>{r.total_hours || 0}h</span> },
                   { header: 'Avg/Day', render: r => <span style={{ fontSize: 13 }}>{r.avg_hours || 0}h</span> },
@@ -442,10 +454,14 @@ const Attendance = () => {
                             const durFmt = hrs > 0
                               ? `${Math.floor(hrs)}h ${Math.round((hrs % 1) * 60)}m`
                               : '--';
+                            const late = !!s.is_late;
                             return (
                               <div key={idx} className="att-session-row">
                                 <Badge variant="primary">#{s.session_no}</Badge>
-                                <span>{s.punchIn || s.punch_in_time || '--'}</span>
+                                <span>
+                                  {s.punchIn || s.punch_in_time || '--'}
+                                  {late ? <LatePill /> : null}
+                                </span>
                                 <span>{s.punchOut || s.punch_out_time || '--'}</span>
                                 <span style={{ fontWeight: 600 }}>{durFmt}</span>
                                 <span className="att-session-row__loc">{s.punchInAddress || s.punch_in_address || '--'}</span>

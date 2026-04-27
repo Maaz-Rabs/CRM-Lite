@@ -25,7 +25,7 @@ const resolveDatabase = (req, res, next) => {
       req.headers['x-client-db'] ||
       req.query.db ||
       process.env.DB_NAME ||
-      'rabsconnect_aarohan';
+      'rabsconnect_lite';
 
     // Sanitize: only allow alphanumeric + underscore
     if (!/^[a-zA-Z0-9_]+$/.test(dbName)) {

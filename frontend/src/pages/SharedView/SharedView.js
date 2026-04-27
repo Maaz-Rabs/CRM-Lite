@@ -38,7 +38,7 @@ const SharedView = () => {
   // Try to extract db name from URL query params or use default
   function getDbFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('db') || localStorage.getItem('rabs_shared_db') || process.env.REACT_APP_DB_NAME || 'rabsconnect_aarohan';
+    return params.get('db') || localStorage.getItem('rabs_shared_db') || process.env.REACT_APP_DB_NAME || 'rabsconnect_lite';
   }
 
   const formatPrice = (price) => {

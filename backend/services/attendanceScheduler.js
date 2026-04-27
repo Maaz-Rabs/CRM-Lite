@@ -13,7 +13,7 @@ function getClientDatabases() {
   if (process.env.CLIENT_DBS) {
     return process.env.CLIENT_DBS.split(',').map(s => s.trim()).filter(Boolean);
   }
-  const defaultDb = process.env.DB_NAME || 'rabsconnect_aarohan';
+  const defaultDb = process.env.DB_NAME || 'rabsconnect_lite';
   return [defaultDb];
 }
 

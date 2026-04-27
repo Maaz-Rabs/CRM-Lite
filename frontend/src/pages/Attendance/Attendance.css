@@ -33,3 +33,21 @@
 .att-session-row--head { font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.3px; padding: 8px 16px; background: transparent; }
 .att-session-row--head + .att-session-row { border-top: 1px solid var(--gray-100); }
 .att-session-row__loc { font-size: 12px; color: var(--gray-500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ── Late mark indicator ─────────────────────────────── */
+.att-punchin-cell { font-size: 13px; }
+.att-late-pill {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--danger-light);
+  color: var(--danger);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+[data-theme="dark"] .att-late-pill {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+}

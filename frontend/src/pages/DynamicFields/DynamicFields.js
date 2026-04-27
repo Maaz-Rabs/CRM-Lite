@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { apiFetch } from '../../utils/api';
+import { useToast } from '../../context/ToastContext';
 import Header from '../../components/layout/Header';
 import { Modal, Button } from '../../components/common/Common';
 import {
-  Plus, Edit2, Trash2, ChevronLeft, ChevronRight,
+  Plus, Edit2, Trash2, ChevronDown, ChevronLeft, ChevronRight,
   Globe, Tag, Flag, Building2, Briefcase, Home, LayoutGrid, Clock, Search, X
 } from 'lucide-react';
 import '../../components/leads/LeadTable.css';
@@ -19,8 +20,22 @@ const FIELD_TYPES = [
   { key: 'service_types', label: 'Service Types', icon: Briefcase, color: '#f59e0b', endpoint: 'dynamic-fields/service-types', nameField: 'name', idField: 'st_id' },
   { key: 'property_types', label: 'Property Types', icon: Home, color: '#06b6d4', endpoint: 'dynamic-fields/property-types', nameField: 'name', idField: 'pt_id' },
   { key: 'property_configurations', label: 'Configurations', icon: LayoutGrid, color: '#ec4899', endpoint: 'dynamic-fields/configurations', nameField: 'name', idField: 'pc_id' },
-  { key: 'attendance_policies', label: 'Attendance', icon: Clock, color: '#14b8a6', endpoint: 'dynamic-fields/attendance-policies', nameField: 'title', idField: 'ap_id', extraFields: ['type', 'threshold_hours'] },
+  // Color is intentionally NOT exposed for attendance policies — it isn't shown anywhere user-facing
+  { key: 'attendance_policies', label: 'Attendance', icon: Clock, color: '#14b8a6', endpoint: 'dynamic-fields/attendance-policies', nameField: 'title', idField: 'ap_id', extraFields: ['type', 'rule'] },
 ];
+
+// Attendance policy enum + helpers — kept in sync with backend VALID_ATTENDANCE_TYPES
+const ATTENDANCE_TYPE_OPTIONS = [
+  { value: 'full_day', label: 'Full Day', requires: 'hours', hint: 'Day is "Present" once worked hours reach the threshold.' },
+  { value: 'half_day', label: 'Half Day', requires: 'hours', hint: 'Day is "Half Day" between this and the full-day threshold.' },
+  { value: 'late_mark', label: 'Late Mark', requires: 'time', hint: 'First punch-in after this time flags the day as late.' },
+  { value: 'intime', label: 'In-time', requires: 'time', hint: 'Used as the late cutoff if no Late Mark policy is active. First punch-in after this time will be flagged late.' },
+  { value: 'week_off', label: 'Week Off', requires: 'days', hint: 'Selected weekdays are treated as days off.' },
+];
+const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const getAttendanceRequires = (type) =>
+  ATTENDANCE_TYPE_OPTIONS.find(o => o.value === type)?.requires || null;
 
 const DynamicFields = () => {
   const [selectedType, setSelectedType] = useState(FIELD_TYPES[0]);
@@ -33,14 +48,9 @@ const DynamicFields = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
-  const [formData, setFormData] = useState({ name: '', color: '#808080', icon: '', developer: '', location: '', type: '', threshold_hours: '' });
+  const [formData, setFormData] = useState({ name: '', color: '#808080', icon: '', developer: '', location: '', type: '', threshold_hours: '', threshold_time: '', week_offs: '' });
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState(null);
-
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  const { showToast } = useToast();
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -66,9 +76,14 @@ const DynamicFields = () => {
     const name = String(item[selectedType.nameField] || '').toLowerCase();
     if (name.includes(q)) return true;
     if (selectedType.extraFields) {
-      return selectedType.extraFields.some(f =>
-        String(item[f] || '').toLowerCase().includes(q)
-      );
+      return selectedType.extraFields.some(f => {
+        // `rule` is a virtual column for attendance — search the underlying fields instead
+        if (f === 'rule') {
+          return ['threshold_hours', 'threshold_time', 'week_offs', 'type']
+            .some(k => String(item[k] || '').toLowerCase().includes(q));
+        }
+        return String(item[f] || '').toLowerCase().includes(q);
+      });
     }
     return false;
   });
@@ -98,7 +113,7 @@ const DynamicFields = () => {
 
   const openAdd = () => {
     setEditItem(null);
-    setFormData({ name: '', color: '#808080', icon: '', developer: '', location: '', type: '', threshold_hours: '' });
+    setFormData({ name: '', color: '#808080', icon: '', developer: '', location: '', type: '', threshold_hours: '', threshold_time: '', week_offs: '' });
     setShowModal(true);
   };
 
@@ -111,9 +126,23 @@ const DynamicFields = () => {
       developer: item.developer || '',
       location: item.location || '',
       type: item.type || '',
-      threshold_hours: item.threshold_hours || '',
+      threshold_hours: item.threshold_hours ?? '',
+      // MySQL TIME comes back as 'HH:MM:SS' — slice to HH:MM for <input type="time">
+      threshold_time: item.threshold_time ? String(item.threshold_time).slice(0, 5) : '',
+      week_offs: item.week_offs || '',
     });
     setShowModal(true);
+  };
+
+  const toggleWeekDay = (dayIdx) => {
+    setFormData(prev => {
+      const days = (prev.week_offs || '').split(',').filter(Boolean);
+      const key = String(dayIdx);
+      const next = days.includes(key)
+        ? days.filter(d => d !== key)
+        : [...days, key].sort((a, b) => Number(a) - Number(b));
+      return { ...prev, week_offs: next.join(',') };
+    });
   };
 
   const handleSave = async () => {
@@ -123,11 +152,36 @@ const DynamicFields = () => {
     }
     setSaving(true);
     try {
-      const payload = { [selectedType.nameField]: formData.name.trim() };
-      if (selectedType.hasColor) payload.color = formData.color;
-      if (selectedType.hasIcon) payload.icon = formData.icon;
-      if (selectedType.extraFields) {
-        selectedType.extraFields.forEach(f => { if (formData[f]) payload[f] = formData[f]; });
+      let payload = { [selectedType.nameField]: formData.name.trim() };
+
+      if (selectedType.key === 'attendance_policies') {
+        // Type-aware payload — only persist fields that the chosen type uses,
+        // and clear the others so a switched type doesn't leave stale values.
+        if (!formData.type) { showToast('Type is required', 'error'); setSaving(false); return; }
+        const requires = getAttendanceRequires(formData.type);
+
+        if (requires === 'hours') {
+          if (formData.threshold_hours === '' || isNaN(Number(formData.threshold_hours))) {
+            showToast('Threshold hours is required', 'error'); setSaving(false); return;
+          }
+        }
+        if (requires === 'time' && !formData.threshold_time) {
+          showToast('Threshold time is required', 'error'); setSaving(false); return;
+        }
+        if (requires === 'days' && !formData.week_offs) {
+          showToast('Pick at least one week-off day', 'error'); setSaving(false); return;
+        }
+
+        payload.type = formData.type;
+        payload.threshold_hours = requires === 'hours' ? Number(formData.threshold_hours) : null;
+        payload.threshold_time = requires === 'time' ? formData.threshold_time : null;
+        payload.week_offs = requires === 'days' ? formData.week_offs : null;
+      } else {
+        if (selectedType.hasColor) payload.color = formData.color;
+        if (selectedType.hasIcon) payload.icon = formData.icon;
+        if (selectedType.extraFields) {
+          selectedType.extraFields.forEach(f => { if (formData[f]) payload[f] = formData[f]; });
+        }
       }
 
       const endpoint = editItem
@@ -246,7 +300,10 @@ const DynamicFields = () => {
                 <th style={{ width: 40 }}>#</th>
                 {selectedType.hasColor && <th style={{ width: 50 }}>Color</th>}
                 <th>Name</th>
-                {selectedType.extraFields?.map(f => <th key={f} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}</th>)}
+                {selectedType.extraFields?.map(f => {
+                  const label = f === 'rule' ? 'Rule' : f.replace(/_/g, ' ');
+                  return <th key={f} style={{ textTransform: 'capitalize' }}>{label}</th>;
+                })}
                 <th style={{ width: 70 }}>Active</th>
                 <th style={{ width: 100 }}>Actions</th>
               </tr>
@@ -312,17 +369,35 @@ const DynamicFields = () => {
                     )}
                   </td>
                   {selectedType.extraFields?.map(f => {
+                    // Virtual `rule` column for attendance — renders the relevant
+                    // threshold/days based on the policy type so each row stays meaningful.
+                    if (f === 'rule' && selectedType.key === 'attendance_policies') {
+                      const t = item.type;
+                      const requires = getAttendanceRequires(t);
+                      if (requires === 'hours' && item.threshold_hours != null && item.threshold_hours !== '') {
+                        return <td key={f} className="df-table__extra df-table__extra--num">{item.threshold_hours}<span className="df-unit">h</span></td>;
+                      }
+                      if (requires === 'time' && item.threshold_time) {
+                        return <td key={f} className="df-table__extra">{String(item.threshold_time).slice(0, 5)}</td>;
+                      }
+                      if (requires === 'days' && item.week_offs) {
+                        const labels = String(item.week_offs)
+                          .split(',')
+                          .map(d => WEEK_DAYS[parseInt(d.trim(), 10)])
+                          .filter(Boolean)
+                          .join(', ');
+                        return <td key={f} className="df-table__extra">{labels || '—'}</td>;
+                      }
+                      return <td key={f} className="df-table__extra df-table__extra--muted">—</td>;
+                    }
+
                     const val = item[f];
                     if (val === null || val === undefined || val === '') {
                       return <td key={f} className="df-table__extra df-table__extra--muted">—</td>;
                     }
-                    // Render `type` columns (e.g. attendance policy type) as a chip
+                    // Attendance policy `type` — plain text (no chip)
                     if (f === 'type') {
-                      return (
-                        <td key={f}>
-                          <span className="df-chip">{String(val).replace(/_/g, ' ')}</span>
-                        </td>
-                      );
+                      return <td key={f} className="df-table__extra">{String(val).replace(/_/g, ' ')}</td>;
                     }
                     // Render `threshold_hours` with an h suffix
                     if (f === 'threshold_hours') {
@@ -392,7 +467,7 @@ const DynamicFields = () => {
       </div>
 
       {/* Add/Edit Modal */}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editItem ? `Edit ${selectedType.label.replace(/s$/, '')}` : `Add ${selectedType.label.replace(/s$/, '')}`} size="sm">
+      <Modal isOpen={showModal} onClose={() => { if (!saving) setShowModal(false); }} title={editItem ? `Edit ${selectedType.label.replace(/s$/, '')}` : `Add ${selectedType.label.replace(/s$/, '')}`} size="sm">
         <div className="df-form">
           <div className="df-form__field">
             <label>Name *</label>
@@ -413,14 +488,88 @@ const DynamicFields = () => {
               <input value={formData.icon} onChange={(e) => setFormData(p => ({ ...p, icon: e.target.value }))} placeholder="e.g. globe, user, building" />
             </div>
           )}
-          {selectedType.extraFields?.map(f => (
-            <div className="df-form__field" key={f}>
-              <label style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}</label>
-              <input value={formData[f] || ''} onChange={(e) => setFormData(p => ({ ...p, [f]: e.target.value }))} placeholder={`Enter ${f.replace(/_/g, ' ')}`} />
-            </div>
-          ))}
+          {selectedType.key === 'attendance_policies' ? (
+            <>
+              <div className="df-form__field">
+                <label>Type *</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => setFormData(p => ({ ...p, type: e.target.value }))}
+                >
+                  <option value="">Select type</option>
+                  {ATTENDANCE_TYPE_OPTIONS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                {formData.type && (
+                  <small className="df-form__hint">
+                    {ATTENDANCE_TYPE_OPTIONS.find(o => o.value === formData.type)?.hint}
+                  </small>
+                )}
+              </div>
+
+              {(formData.type === 'full_day' || formData.type === 'half_day') && (
+                <div className="df-form__field">
+                  <label>Threshold Hours *</label>
+                  <input
+                    type="number"
+                    step="0.25"
+                    min="0"
+                    max="24"
+                    value={formData.threshold_hours}
+                    onChange={(e) => setFormData(p => ({ ...p, threshold_hours: e.target.value }))}
+                    placeholder="e.g. 9"
+                  />
+                </div>
+              )}
+
+              {(formData.type === 'late_mark' || formData.type === 'intime') && (
+                <div className="df-form__field">
+                  <label>Threshold Time *</label>
+                  <input
+                    type="time"
+                    value={formData.threshold_time}
+                    onChange={(e) => setFormData(p => ({ ...p, threshold_time: e.target.value }))}
+                  />
+                </div>
+              )}
+
+              {formData.type === 'week_off' && (
+                <div className="df-form__field">
+                  <label>Week-off Days *</label>
+                  <div className="df-week-grid">
+                    {WEEK_DAYS.map((d, i) => {
+                      const selected = (formData.week_offs || '')
+                        .split(',')
+                        .map(s => s.trim())
+                        .includes(String(i));
+                      return (
+                        <button
+                          type="button"
+                          key={d}
+                          className={'df-week-pill' + (selected ? ' df-week-pill--on' : '')}
+                          onClick={() => toggleWeekDay(i)}
+                          aria-pressed={selected}
+                          aria-label={`${d}${selected ? ' (selected)' : ''}`}
+                        >
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            selectedType.extraFields?.map(f => (
+              <div className="df-form__field" key={f}>
+                <label style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}</label>
+                <input value={formData[f] || ''} onChange={(e) => setFormData(p => ({ ...p, [f]: e.target.value }))} placeholder={`Enter ${f.replace(/_/g, ' ')}`} />
+              </div>
+            ))
+          )}
           <div className="modal__actions">
-            <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={saving}>Cancel</Button>
             <Button variant="gold" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : (editItem ? 'Update' : 'Add')}</Button>
           </div>
         </div>
@@ -436,8 +585,6 @@ const DynamicFields = () => {
           <Button variant="danger" icon={Trash2} onClick={handleDelete}>Delete</Button>
         </div>
       </Modal>
-
-      {toast && <div className={`broker-toast broker-toast--${toast.type}`}>{toast.message}</div>}
     </div>
   );
 };

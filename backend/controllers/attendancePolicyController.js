@@ -141,7 +141,8 @@ const update = async (req, res) => {
     const { title, type, threshold_hours, threshold_minutes, threshold_time, color, week_offs, user_week_offs } = req.body;
 
     // If changing title or type, check for duplicate combo
-    const newTitle = title !== undefined ? title.trim() : existing.title;
+    // Guard against title === undefined/null (only `type` may be sent on a partial update)
+    const newTitle = (title !== undefined && title !== null) ? String(title).trim() : existing.title;
     const newType = type !== undefined ? type : existing.type;
     if ((title && newTitle !== existing.title) || (type && newType !== existing.type)) {
       const duplicate = await AttendancePolicy.getByTitleAndType(req.db, newTitle, newType);

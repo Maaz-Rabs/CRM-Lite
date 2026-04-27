@@ -510,6 +510,58 @@
   border-color: var(--navy-400);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--navy-400) 18%, transparent);
 }
+.df-form__field select {
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--gray-800);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.df-form__field select:focus {
+  border-color: var(--navy-400);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--navy-400) 18%, transparent);
+}
+.df-form__hint {
+  font-size: 11.5px;
+  color: var(--gray-500);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+.df-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.df-week-pill {
+  padding: 9px 0;
+  border: 1.5px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: inherit;
+}
+.df-week-pill:hover {
+  border-color: var(--navy-300);
+  color: var(--navy-600);
+}
+.df-week-pill--on {
+  background: var(--navy-700);
+  border-color: var(--navy-700);
+  color: var(--white);
+}
+.df-week-pill--on:hover {
+  background: var(--navy-600);
+  border-color: var(--navy-600);
+  color: var(--white);
+}
 .df-form__color-row { display: flex; gap: 10px; align-items: center; }
 .df-form__color-input {
   width: 44px;
@@ -665,12 +717,25 @@
 [data-theme="dark"] .df-empty__spinner { border-color: rgba(255, 255, 255, 0.14); }
 
 [data-theme="dark"] .df-form__field input,
+[data-theme="dark"] .df-form__field select,
 [data-theme="dark"] .df-form__color-text {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.10);
   color: rgba(255, 255, 255, 0.92);
 }
-[data-theme="dark"] .df-form__field input:focus {
+[data-theme="dark"] .df-form__field input:focus,
+[data-theme="dark"] .df-form__field select:focus {
   border-color: var(--navy-300);
   box-shadow: 0 0 0 3px rgba(61, 107, 181, 0.25);
+}
+[data-theme="dark"] .df-form__hint { color: rgba(255, 255, 255, 0.55); }
+[data-theme="dark"] .df-week-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-theme="dark"] .df-week-pill--on {
+  background: var(--navy-500);
+  border-color: var(--navy-500);
+  color: var(--white);
 }

@@ -47,6 +47,7 @@ const getTodayStatus = async (req, res) => {
       punch_out_lat: s.punch_out_lat,
       punch_out_lng: s.punch_out_lng,
       total_hours: s.total_hours,
+      is_late: !!s.is_late,
       status: s.status,
     }));
 
@@ -198,6 +199,8 @@ const getHistory = async (req, res) => {
         hours: record.total_hours || 0,
         punchInAddress: record.punch_in_address,
         punchOutAddress: record.punch_out_address,
+        // snake_case mirrors the rest of the API (first_punch_in, total_hours, etc.)
+        is_late: !!record.is_late,
       });
       if (record.total_hours) grouped[dateKey].totalHours += parseFloat(record.total_hours);
       // Use best status (present > halfday)
@@ -236,6 +239,9 @@ const getStats = async (req, res) => {
 
     const attendance = new Attendance(req.db);
     const stats = await attendance.getStats(userId, startDate, endDate);
+    const weekendDays = (startDate && endDate)
+      ? await attendance.countWeekendDaysForUser(userId, startDate, endDate)
+      : 0;
 
     return response.success(res, 'Attendance stats', {
       stats: {
@@ -244,6 +250,7 @@ const getStats = async (req, res) => {
         halfdayDays: parseInt(stats.halfday_days) || 0,
         leaveDays: parseInt(stats.leave_days) || 0,
         forgotLogoutDays: parseInt(stats.forgot_logout_days) || 0,
+        weekendDays,
         totalHours: parseFloat(stats.total_hours) || 0,
         avgHours: parseFloat(stats.avg_hours) || 0,
       },
@@ -328,6 +335,8 @@ const getAdminUserDetail = async (req, res) => {
         hours: record.total_hours || 0,
         punchInAddress: record.punch_in_address,
         punchOutAddress: record.punch_out_address,
+        // snake_case mirrors the rest of the API (first_punch_in, total_hours, etc.)
+        is_late: !!record.is_late,
       });
       if (record.total_hours) grouped[dateKey].totalHours += parseFloat(record.total_hours);
       if (record.status === 'present') grouped[dateKey].status = 'present';
@@ -345,6 +354,8 @@ const getAdminUserDetail = async (req, res) => {
       status: day.status,
     }));
 
+    const weekendDays = await attendance.countWeekendDaysForUser(user_id, startDate, endDate);
+
     return response.success(res, 'Admin user detail', {
       history: formattedHistory,
       stats: {
@@ -353,6 +364,7 @@ const getAdminUserDetail = async (req, res) => {
         halfdayDays: parseInt(stats.halfday_days) || 0,
         leaveDays: parseInt(stats.leave_days) || 0,
         forgotLogoutDays: parseInt(stats.forgot_logout_days) || 0,
+        weekendDays,
         totalHours: parseFloat(stats.total_hours) || 0,
         avgHours: parseFloat(stats.avg_hours) || 0,
       },

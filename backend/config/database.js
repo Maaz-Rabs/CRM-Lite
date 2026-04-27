@@ -6,12 +6,12 @@
 
 const mysql = require('mysql2/promise');
 
-// Pool cache: { 'rabsconnect_aarohan': pool, 'rabsconnect_client2': pool }
+// Pool cache: { 'rabsconnect_lite': pool, 'rabsconnect_client2': pool }
 const poolCache = {};
 
 /**
  * Get or create a connection pool for a specific client database
- * @param {string} dbName - Database name e.g. 'rabsconnect_aarohan'
+ * @param {string} dbName - Database name e.g. 'rabsconnect_lite'
  * @returns {mysql2.Pool}
  */
 const getPool = (dbName) => {
@@ -49,7 +49,7 @@ const getPool = (dbName) => {
  * Used when no specific client database is needed
  */
 const getDefaultPool = () => {
-  const dbName = process.env.DB_NAME || 'rabsconnect_aarohan';
+  const dbName = process.env.DB_NAME || 'rabsconnect_lite';
   return getPool(dbName);
 };
 
