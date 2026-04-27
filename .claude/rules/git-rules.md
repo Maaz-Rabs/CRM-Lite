@@ -1,0 +1,4 @@
+- Always pull before commit
+- Stage only relevant files, not everything
+- Conventional commits: feat:, fix:, refactor:, docs:
+- Short clear commit messages
